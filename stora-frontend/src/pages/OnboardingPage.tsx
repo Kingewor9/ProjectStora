@@ -18,7 +18,12 @@ export function OnboardingPage() {
       const user = await configureOnboarding({ channel_id: channelId.trim() });
       setUser(user);
     } catch (err: any) {
-      setError(err?.response?.data?.detail ?? "Couldn't validate that channel. Check the steps and try again.");
+      const errorDetails = err?.response?.data?.detail;
+      const fallbackMsg = err.message === "Network Error" 
+        ? "Network Error: Could not connect to the server (check your CORS or API URL settings)." 
+        : `Couldn't validate channel. (Debug: ${err.message || 'unknown error'})`;
+      
+      setError(errorDetails || fallbackMsg);
     } finally {
       setIsSubmitting(false);
     }
