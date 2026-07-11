@@ -59,10 +59,24 @@ async def configure_channel(
     if existing_owner and existing_owner["telegram_id"] != tg_user["id"]:
         raise HTTPException(400, "This channel is already linked to another Stora account.")
 
+    # Normalize channel ID
+    c_id_str = payload.channel_id.strip()
+    if c_id_str.isdigit():
+        c_id_str = f"-100{c_id_str}"
+    elif c_id_str.startswith("-") and not c_id_str.startswith("-100"):
+        c_id_str = f"-100{c_id_str[1:]}"
+    
     try:
-        member = await bot.get_chat_member(chat_id=payload.channel_id, user_id=bot.id)
-    except Exception:
-        raise HTTPException(400, "Couldn't find that channel. Check the Channel ID and try again.")
+        chat_id_int = int(c_id_str)
+    except ValueError:
+        raise HTTPException(400, "Invalid Channel ID format. Must be numeric.")
+
+    try:
+        member = await bot.get_chat_member(chat_id=chat_id_int, user_id=bot.id)
+    except Exception as e:
+        import logging
+        logging.error(f"Error validating channel {chat_id_int}: {e}")
+        raise HTTPException(400, f"Couldn't find that channel. Check the Channel ID and try again. (Debug: {str(e)})")
 
     if member.status not in ("administrator", "creator"):
         raise HTTPException(400, "Stora bot must be an admin in that channel.")
