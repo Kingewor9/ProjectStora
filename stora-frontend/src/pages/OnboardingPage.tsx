@@ -39,7 +39,7 @@ export function OnboardingPage() {
         </li>
         <li>
           <span className="stora-step-num">2</span>
-          Add <strong>@{botUsername}</strong> as an admin in that channel
+          Add <strong>@storaofficial_bot{botUsername}</strong> as an admin in that channel
         </li>
         <li>
           <span className="stora-step-num">3</span>
