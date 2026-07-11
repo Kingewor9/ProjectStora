@@ -28,7 +28,7 @@ async def handle_start(message: Message):
             "Welcome to Stora \U0001F4E6\n\n"
             "Before you start storing files, let's set up your private vault:\n\n"
             "1. Create a new private Telegram channel\n"
-            "2. Add <b>@StoraBot</b> as an admin in that channel\n"
+            "2. Add <b>@Storaofficial_bot</b> as an admin in that channel\n"
             "3. Get your Channel ID using @userinfobot\n"
             "4. Open the app below and paste the Channel ID to finish setup"
         )
