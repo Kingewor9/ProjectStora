@@ -18,6 +18,7 @@ logging.basicConfig(level=logging.INFO)
 dp.include_router(onboarding.router)
 dp.include_router(forward_handler.router)
 dp.include_router(folder_picker.router)
+dp.include_router(payments.router)
 
 
 async def main():

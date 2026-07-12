@@ -1,4 +1,4 @@
-export {};
+export { };
 
 declare global {
   interface Window {
@@ -11,6 +11,7 @@ declare global {
         ready: () => void;
         expand: () => void;
         close: () => void;
+        openInvoice: (url: string, callback?: (status: "paid" | "cancelled" | "failed" | "pending") => void) => void;
         onEvent: (event: string, cb: () => void) => void;
         offEvent: (event: string, cb: () => void) => void;
         BackButton: {

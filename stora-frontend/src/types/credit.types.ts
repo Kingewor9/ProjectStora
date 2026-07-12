@@ -11,6 +11,7 @@ export interface TopUpInvoice {
   credit_amount: number;
   stars_cost: number;
   payload: string;
+  invoice_link: string;
 }
 
 export type EarnTaskId = "daily" | "watch_ad" | "invite" | "subscribe";
