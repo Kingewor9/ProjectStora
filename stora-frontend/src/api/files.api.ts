@@ -20,3 +20,7 @@ export async function sendFileToChat(fileId: string): Promise<void> {
 export async function deleteFile(fileId: string): Promise<void> {
   await client.delete(`/api/files/${fileId}`);
 }
+
+export async function renameFile(fileId: string, newName: string): Promise<void> {
+  await client.patch(`/api/files/${fileId}/rename`, { file_name: newName });
+}

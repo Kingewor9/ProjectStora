@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { HashRouter, Routes, Route, Navigate } from "react-router-dom";
 import { useTelegramTheme } from "@/hooks/useTelegramTheme";
 import { useOnboardingCheck } from "@/hooks/useOnboardingCheck";
 import { BottomNav } from "@/components/layout/BottomNav";
@@ -39,7 +39,7 @@ export default function App() {
   useTelegramTheme();
 
   return (
-    <BrowserRouter>
+    <HashRouter>
       <AppShell />
       <style>{`
         .stora-loading {
@@ -51,6 +51,6 @@ export default function App() {
           font-size: 15px;
         }
       `}</style>
-    </BrowserRouter>
+    </HashRouter>
   );
 }

@@ -19,6 +19,9 @@ export function SettingsPage() {
   const navigate = useNavigate();
   const user = useUserStore((s) => s.user);
   const [language, setLanguage] = useState(user?.language ?? "en");
+  
+  const tgUser = window.Telegram?.WebApp?.initDataUnsafe?.user;
+  const photoUrl = user?.photo_url || (tgUser as any)?.photo_url;
 
   const handleLanguageChange = (code: string) => {
     setLanguage(code);
@@ -39,8 +42,8 @@ export function SettingsPage() {
       <h1 className="stora-page-title">Settings</h1>
 
       <div className="stora-settings-profile">
-        {user?.photo_url ? (
-          <img src={user.photo_url} alt="" className="stora-settings-avatar" />
+        {photoUrl ? (
+          <img src={photoUrl} alt="" className="stora-settings-avatar" />
         ) : (
           <div className="stora-settings-avatar-placeholder">
             {(user?.first_name ?? "S").charAt(0).toUpperCase()}

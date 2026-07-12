@@ -40,6 +40,14 @@ async def delete_file(db: AsyncIOMotorDatabase, file_id: str, user_id: int) -> b
     return result.deleted_count > 0
 
 
+async def rename_file(db: AsyncIOMotorDatabase, file_id: str, user_id: int, new_name: str) -> bool:
+    result = await db.files.update_one(
+        {"_id": _oid(file_id), "user_id": user_id},
+        {"$set": {"file_name": new_name}}
+    )
+    return result.modified_count > 0
+
+
 # --- Pending uploads (forwarded but not yet assigned to a folder) ---
 
 async def create_pending_upload(db: AsyncIOMotorDatabase, pending: PendingUpload) -> dict:

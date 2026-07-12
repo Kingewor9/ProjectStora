@@ -4,7 +4,7 @@ import { SearchBar } from "@/components/ui/SearchBar";
 import { FileList } from "@/components/files/FileList";
 import { NewFileModal } from "@/components/files/NewFileModal";
 import { useDebounce } from "@/hooks/useDebounce";
-import { fetchFilesInFolder } from "@/api/files.api";
+import { fetchFilesInFolder, renameFile } from "@/api/files.api";
 import { fetchFolderDetail } from "@/api/folders.api";
 import type { StoraFile } from "@/types/file.types";
 
@@ -43,6 +43,18 @@ export function FilesPage() {
     ? files.filter((f) => f.file_name.toLowerCase().includes(debouncedSearch.toLowerCase()))
     : files;
 
+  const handleRenameFile = async (fileId: string, newName: string) => {
+    try {
+      await renameFile(fileId, newName);
+      setFiles((prev) =>
+        prev.map((f) => (f.id === fileId ? { ...f, file_name: newName } : f))
+      );
+    } catch (err) {
+      console.error("Failed to rename file:", err);
+      window.Telegram?.WebApp?.HapticFeedback?.notificationOccurred("error");
+    }
+  };
+
   return (
     <div className="stora-page">
       <button className="stora-back-btn" onClick={() => navigate(-1)}>
@@ -60,7 +72,13 @@ export function FilesPage() {
         <SearchBar value={search} onChange={setSearch} placeholder="Search for files" />
       </div>
 
-      {!isLoading && <FileList files={visibleFiles} onOpenNewFile={() => setModalOpen(true)} />}
+      {!isLoading && (
+        <FileList 
+          files={visibleFiles} 
+          onOpenNewFile={() => setModalOpen(true)} 
+          onRenameFile={handleRenameFile}
+        />
+      )}
 
       <NewFileModal isOpen={isModalOpen} onClose={() => setModalOpen(false)} botUsername={botUsername} />
 

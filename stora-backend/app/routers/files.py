@@ -1,4 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException
+from pydantic import BaseModel
 from motor.motor_asyncio import AsyncIOMotorDatabase
 
 from app.database import get_db
@@ -8,6 +9,10 @@ from app.crud import file_crud
 from app.bot.bot_instance import bot
 
 router = APIRouter(prefix="/api/files", tags=["files"])
+
+
+class FileRename(BaseModel):
+    file_name: str
 
 
 def _to_file_out(doc: dict) -> FileOut:
@@ -78,3 +83,16 @@ async def delete_user_file(
     if not deleted:
         raise HTTPException(404, "File not found")
     return {"status": "deleted"}
+
+
+@router.patch("/{file_id}/rename")
+async def rename_user_file(
+    file_id: str,
+    payload: FileRename,
+    tg_user: dict = Depends(get_current_telegram_user),
+    db: AsyncIOMotorDatabase = Depends(get_db),
+):
+    updated = await file_crud.rename_file(db, file_id, tg_user["id"], payload.file_name)
+    if not updated:
+        raise HTTPException(404, "File not found")
+    return {"status": "renamed", "file_name": payload.file_name}

@@ -7,9 +7,10 @@ import { sendFileToChat } from "@/api/files.api";
 interface FileListProps {
   files: StoraFile[];
   onOpenNewFile: () => void;
+  onRenameFile?: (fileId: string, newName: string) => Promise<void>;
 }
 
-export function FileList({ files, onOpenNewFile }: FileListProps) {
+export function FileList({ files, onOpenNewFile, onRenameFile }: FileListProps) {
   const [sendingId, setSendingId] = useState<string | null>(null);
 
   const handleSend = async (file: StoraFile) => {
@@ -42,7 +43,13 @@ export function FileList({ files, onOpenNewFile }: FileListProps) {
   return (
     <div className="stora-file-list">
       {files.map((file) => (
-        <FileCard key={file.id} file={file} onSend={handleSend} isSending={sendingId === file.id} />
+        <FileCard 
+          key={file.id} 
+          file={file} 
+          onSend={handleSend} 
+          onRename={onRenameFile}
+          isSending={sendingId === file.id} 
+        />
       ))}
       <style>{`
         .stora-file-list {
