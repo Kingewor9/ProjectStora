@@ -10,7 +10,7 @@ import asyncio
 import logging
 
 from app.bot.bot_instance import bot, dp
-from app.bot.handlers import onboarding, forward_handler, folder_picker
+from app.bot.handlers import onboarding, forward_handler, folder_picker, payments
 from app.database import connect_to_mongo, close_mongo_connection
 
 logging.basicConfig(level=logging.INFO)
