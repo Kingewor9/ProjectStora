@@ -1,10 +1,12 @@
 from fastapi import APIRouter, Depends, HTTPException
 from motor.motor_asyncio import AsyncIOMotorDatabase
+from aiogram.types import LabeledPrice
 
 from app.database import get_db
 from app.utils.telegram_auth import get_current_telegram_user
 from app.crud import user_crud
 from app.config import settings
+from app.bot.bot_instance import bot
 
 router = APIRouter(prefix="/api/credits", tags=["credits"])
 
@@ -87,27 +89,34 @@ async def create_topup_invoice(
 ):
     """
     Creates a real Telegram Stars invoice link. Stars payments use
-    currency 'XTR' and require NO provider_token (unlike normal
-    Telegram Payments) — that's what makes Stars different to set up.
+    currency 'XTR' and an EMPTY provider_token string — aiogram's
+    create_invoice_link requires the param be passed explicitly even
+    though Stars don't use a real payment provider.
     """
     if credit_amount <= 0:
-        raise HTTPException(400, "credit_amount must be positive")
- 
+        raise HTTPException(400, "credit_amount must be a positive number of credits")
+    if credit_amount > 100000:
+        raise HTTPException(400, "That's more credits than we can process in one purchase")
+
     stars_cost = credit_amount * settings.STARS_TO_CREDITS_RATE
     payload = f"topup_{tg_user['id']}_{credit_amount}"
- 
-    invoice_link = await bot.create_invoice_link(
-        title=f"{credit_amount} Stora Credits",
-        description=f"Top up your Stora balance with {credit_amount} credits.",
-        payload=payload,
-        currency="XTR",
-        prices=[LabeledPrice(label=f"{credit_amount} credits", amount=stars_cost)],
-    )
- 
+
+    try:
+        invoice_link = await bot.create_invoice_link(
+            title=f"{credit_amount} Stora Credits",
+            description=f"Top up your Stora balance with {credit_amount} credits.",
+            payload=payload,
+            provider_token="",  # empty string required for Telegram Stars (XTR)
+            currency="XTR",
+            prices=[LabeledPrice(label=f"{credit_amount} credits", amount=stars_cost)],
+        )
+    except Exception as e:
+        # TEMP DEBUG — revert to a generic message once confirmed working.
+        raise HTTPException(400, f"Debug error: {type(e).__name__}: {str(e)}")
+
     return {
         "credit_amount": credit_amount,
         "stars_cost": stars_cost,
         "payload": payload,
         "invoice_link": invoice_link,
     }
- 

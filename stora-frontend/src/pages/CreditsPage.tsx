@@ -16,7 +16,7 @@ export function CreditsPage() {
       <h1 className="stora-page-title">Stora Credits</h1>
 
       <BalanceCard balance={credits} />
-      <TopUpSection onTopUpStart={() => { /* Stars invoice flow wires in once bot payment handling is live */ }} />
+      <TopUpSection />
       <EarnTaskList />
 
       <style>{`
