@@ -10,8 +10,8 @@ const LANGUAGES = [
   { code: "ar", label: "العربية" },
 ];
 
-const SUPPORT_HANDLE = "StoraSupport";
-const TELEGRAM_URL = "https://t.me/StoraOfficial";
+const SUPPORT_HANDLE = "Storaofficialsupport";
+const TELEGRAM_URL = "https://t.me/Stora_Official";
 const WEB_URL = "https://stora.app";
 const X_URL = "https://x.com/StoraApp";
 
@@ -19,7 +19,7 @@ export function SettingsPage() {
   const navigate = useNavigate();
   const user = useUserStore((s) => s.user);
   const [language, setLanguage] = useState(user?.language ?? "en");
-  
+
   const tgUser = window.Telegram?.WebApp?.initDataUnsafe?.user;
   const photoUrl = user?.photo_url || (tgUser as any)?.photo_url;
 
