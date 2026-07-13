@@ -40,8 +40,25 @@ export function EarnTaskList() {
 
   const handleWatchAd = () =>
     withLoading("watch_ad", async () => {
-      // Adsgram/Giga Pub SDK call goes here; on completion it resolves
-      // with the reward amount, which we then forward to the backend.
+      if (!window.Adsgram) {
+        throw new Error("Adsgram SDK is not loaded. Make sure you are inside the Telegram app.");
+      }
+
+      const blockId = appSettings.adsgramBlockId;
+      if (!blockId) {
+        throw new Error("Ad block ID is not configured. Contact support.");
+      }
+
+      // Initialise and show the rewarded ad
+      const adController = window.Adsgram.init({ blockId });
+      const result = await adController.show();
+
+      if (!result.done) {
+        // User skipped or closed the ad — no reward
+        throw new Error("Ad was not completed. Watch the full ad to earn credits.");
+      }
+
+      // Ad fully watched — claim reward from the backend
       const res = await claimAdReward(appSettings.adWatchReward);
       updateCredits(res.credits);
     });

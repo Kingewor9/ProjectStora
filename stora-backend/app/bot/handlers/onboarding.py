@@ -1,5 +1,8 @@
+import logging
+
 from aiogram import Router
 from aiogram.filters import CommandStart
+from aiogram.filters.command import CommandObject
 from aiogram.types import Message
 
 from app.database import get_db
@@ -7,19 +10,33 @@ from app.bot.keyboards import open_app_keyboard
 from app.crud import user_crud
 from app.models.user import UserCreate
 
+logger = logging.getLogger(__name__)
 router = Router(name="onboarding")
 
 
 @router.message(CommandStart())
-async def handle_start(message: Message):
+async def handle_start(message: Message, command: CommandObject):
     db = get_db()
+
+    # Parse deep-link referral argument, e.g. /start ref_123456789
+    referred_by: int | None = None
+    if command.args:
+        args = command.args.strip()
+        if args.startswith("ref_"):
+            try:
+                referred_by = int(args[4:])
+                # Prevent self-referral
+                if referred_by == message.from_user.id:
+                    referred_by = None
+            except ValueError:
+                logger.warning(f"Invalid referral arg: {args!r}")
 
     user_create = UserCreate(
         telegram_id=message.from_user.id,
         username=message.from_user.username,
         first_name=message.from_user.first_name,
     )
-    user_doc = await user_crud.create_user(db, user_create)
+    user_doc, _ = await user_crud.create_user(db, user_create, referred_by=referred_by)
 
     if user_doc.get("is_onboarded"):
         text = "Welcome back to Stora! Tap below to open your vault."
@@ -34,3 +51,4 @@ async def handle_start(message: Message):
         )
 
     await message.answer(text, reply_markup=open_app_keyboard())
+

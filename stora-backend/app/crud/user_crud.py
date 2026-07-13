@@ -1,5 +1,5 @@
 from datetime import datetime, timedelta
-from typing import Optional
+from typing import Optional, Tuple
 from motor.motor_asyncio import AsyncIOMotorDatabase
 
 from app.models.user import UserCreate, UserInDB
@@ -10,10 +10,18 @@ async def get_user(db: AsyncIOMotorDatabase, telegram_id: int) -> Optional[dict]
     return await db.users.find_one({"telegram_id": telegram_id})
 
 
-async def create_user(db: AsyncIOMotorDatabase, user: UserCreate, referred_by: Optional[int] = None) -> dict:
+async def create_user(
+    db: AsyncIOMotorDatabase,
+    user: UserCreate,
+    referred_by: Optional[int] = None,
+) -> Tuple[dict, bool]:
+    """
+    Returns (user_doc, is_new).
+    `is_new` is True only when the user was just inserted for the first time.
+    """
     existing = await get_user(db, user.telegram_id)
     if existing:
-        return existing
+        return existing, False
 
     user_doc = UserInDB(
         **user.model_dump(),
@@ -22,7 +30,12 @@ async def create_user(db: AsyncIOMotorDatabase, user: UserCreate, referred_by: O
     ).model_dump()
 
     await db.users.insert_one(user_doc)
-    return await get_user(db, user.telegram_id)
+    return await get_user(db, user.telegram_id), True
+
+
+async def credit_referrer(db: AsyncIOMotorDatabase, referrer_id: int) -> Optional[dict]:
+    """Award invite bonus to the referrer. Returns updated referrer doc or None if not found."""
+    return await adjust_credits(db, referrer_id, settings.INVITE_BONUS_CREDITS)
 
 
 async def complete_onboarding(db: AsyncIOMotorDatabase, telegram_id: int, channel_id: str) -> dict:

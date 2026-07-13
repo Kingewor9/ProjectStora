@@ -1,0 +1,58 @@
+# Goal Description
+
+1. **Fix Referral Rewards:** Correct the issue where users aren't receiving their Stora credits for referring others. We will extract the referral parameter from the `/start` command. 
+2. **Referral Notifications:** Automatically notify the referrer via the Telegram bot when someone joins using their link, informing them of the credits added.
+3. **Adsgram Integration:** Integrate the Adsgram SDK into the Stora frontend so users can watch ads and earn Stora credits.
+
+## User Review Required
+
+> [!IMPORTANT]
+> The implementation of Adsgram requires a specific **Adsgram Block ID** for your project. Please provide this in the chat. If you don't have it yet, I will use a placeholder (`your_adsgram_block_id`), which you can replace later in your `.env` file.
+
+> [!NOTE]
+> The referrer will be credited immediately when the new user clicks the `/start` command via their invite link (which creates their Stora account). If you prefer them to be credited only *after* the new user completes the channel setup (onboarding), please let me know. 
+
+## Proposed Changes
+
+---
+
+### Backend Updates
+
+#### [MODIFY] [onboarding.py](file:///c:/Users/Ewor%20chinonye/Project%20Stora/stora-backend/app/bot/handlers/onboarding.py)
+- Update `handle_start` to parse command arguments (e.g., `ref_{telegram_id}`) using `aiogram`'s `CommandObject`.
+- Check if the user is completely new.
+- If it's a new user with a valid referrer, call `user_crud.adjust_credits` to reward the referrer.
+- Use the `bot` instance to send a congratulatory message to the referrer's Telegram, stating their new credit balance.
+
+#### [MODIFY] [user_crud.py](file:///c:/Users/Ewor%20chinonye/Project%20Stora/stora-backend/app/crud/user_crud.py)
+- Refactor `create_user` to return both the user document and a boolean indicating if it's newly created (e.g. `(user_doc, is_new)`). This ensures we safely trigger the reward process exactly once.
+
+---
+
+### Frontend Updates
+
+#### [MODIFY] [index.html](file:///c:/Users/Ewor%20chinonye/Project%20Stora/stora-frontend/index.html)
+- Inject the standard Adsgram SDK script: `<script src="https://sad.adsgram.ai/js/sad.min.js"></script>`
+
+#### [MODIFY] [appSettings.ts](file:///c:/Users/Ewor%20chinonye/Project%20Stora/stora-frontend/src/config/appSettings.ts)
+- Expose the Adsgram block ID from the environment variables (via `import.meta.env.VITE_ADSGRAM_BLOCK_ID`).
+
+#### [MODIFY] [vite-env.d.ts](file:///c:/Users/Ewor%20chinonye/Project%20Stora/stora-frontend/src/vite-env.d.ts)
+- Extend the `Window` interface to provide type definitions for `window.Adsgram.init` in TypeScript.
+
+#### [MODIFY] [EarnTaskList.tsx](file:///c:/Users/Ewor%20chinonye/Project%20Stora/stora-frontend/src/components/credits/EarnTaskList.tsx)
+- Implement `Adsgram.init({ blockId })` within `handleWatchAd`.
+- Trigger `.show()` and hook into the successful `.then()` promise to verify ad completion.
+- Once completed, fire the existing backend HTTP call `claimAdReward()` to deposit credits to the user.
+
+#### [MODIFY] [.env.example](file:///c:/Users/Ewor%20chinonye/Project%20Stora/stora-frontend/.env.example)
+- Add the `VITE_ADSGRAM_BLOCK_ID` configuration variable to document its required presence.
+
+## Verification Plan
+
+### Automated Tests
+- Test backend logic locally by passing a mock `Message` to `handle_start` ensuring existing users aren't re-rewarding.
+
+### Manual Verification
+- Attempt to 'join' the bot manually utilizing an invite link parameter, checking that the correct credits are assigned.
+- In the frontend, simulate clicking "Watch an ad". Wait for Adsgram snippet mock resolution or actual resolution to see Stora credits increment.

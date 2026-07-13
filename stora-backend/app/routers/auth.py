@@ -1,3 +1,5 @@
+import logging
+
 from fastapi import APIRouter, Depends, HTTPException
 from motor.motor_asyncio import AsyncIOMotorDatabase
 
@@ -6,6 +8,9 @@ from app.utils.telegram_auth import get_current_telegram_user
 from app.models.user import UserCreate, UserOut, OnboardingRequest
 from app.crud import user_crud
 from app.bot.bot_instance import bot
+from app.config import settings
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/api/auth", tags=["auth"])
 
@@ -39,7 +44,7 @@ async def start_session(
         photo_url=tg_user.get("photo_url"),
         language=tg_user.get("language_code", "en"),
     )
-    user_doc = await user_crud.create_user(db, user_create)
+    user_doc, _ = await user_crud.create_user(db, user_create)
     return _to_user_out(user_doc)
 
 
@@ -81,5 +86,31 @@ async def configure_channel(
     if member.status not in ("administrator", "creator"):
         raise HTTPException(400, "Stora bot must be an admin in that channel.")
 
+    # Fetch user BEFORE marking onboarding complete so we can read referred_by
+    current_user = await user_crud.get_user(db, tg_user["id"])
     user_doc = await user_crud.complete_onboarding(db, tg_user["id"], payload.channel_id)
+
+    # --- Referral reward: credit referrer and notify them via bot ---
+    referrer_id: int | None = (current_user or {}).get("referred_by")
+    if referrer_id:
+        referrer_doc = await user_crud.credit_referrer(db, referrer_id)
+        if referrer_doc:
+            new_balance = referrer_doc["credits"]
+            referee_name = tg_user.get("first_name") or tg_user.get("username") or "Someone"
+            try:
+                await bot.send_message(
+                    chat_id=referrer_id,
+                    text=(
+                        f"🎉 <b>Referral reward!</b>\n\n"
+                        f"<b>{referee_name}</b> just joined Stora using your invite link and has "
+                        f"completed onboarding.\n\n"
+                        f"✅ <b>+{settings.INVITE_BONUS_CREDITS} Stora Credits</b> have been added to your balance.\n"
+                        f"💰 Your new balance: <b>{new_balance} credits</b>"
+                    ),
+                    parse_mode="HTML",
+                )
+            except Exception as e:
+                # Non-fatal — log and continue even if the notification fails
+                logger.warning(f"Failed to send referral notification to {referrer_id}: {e}")
+
     return _to_user_out(user_doc)

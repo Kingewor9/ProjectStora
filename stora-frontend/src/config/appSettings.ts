@@ -12,4 +12,5 @@ export const settings = {
     saveFileCost: 2,
     starsToCreditsRate: 5, // 1 credit = N Telegram Stars
     officialChannelUsername: "Stora_Official",
-};
+    adsgramBlockId: import.meta.env.VITE_ADSGRAM_BLOCK_ID ?? "",
+};
