@@ -30,7 +30,9 @@ async def claim_daily_bonus(
     updated = await user_crud.claim_daily_bonus(db, tg_user["id"])
     if not updated:
         raise HTTPException(400, "Daily bonus already claimed. Try again later.")
-    return {"credits": updated["credits"], "claimed": settings.DAILY_BONUS_CREDITS}
+    from datetime import datetime, timedelta
+    next_claim_at = (updated["last_daily_claim"] + timedelta(hours=24)).isoformat()
+    return {"credits": updated["credits"], "claimed": settings.DAILY_BONUS_CREDITS, "next_claim_at": next_claim_at}
 
 
 @router.post("/subscribe-bonus")

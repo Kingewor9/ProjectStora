@@ -5,6 +5,7 @@ export interface BalanceResponse {
 export interface ClaimResponse {
   credits: number;
   claimed: number;
+  next_claim_at?: string;  // ISO datetime string — returned by daily-bonus after a successful claim
 }
 
 export interface TopUpInvoice {

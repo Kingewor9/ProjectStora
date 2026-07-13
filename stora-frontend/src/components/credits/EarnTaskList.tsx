@@ -1,41 +1,105 @@
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Button } from "@/components/ui/Button";
 import { TaskCard } from "./TaskCard";
 import { claimDailyBonus, claimSubscribeBonus, claimAdReward } from "@/api/credits.api";
 import { useUserStore } from "@/store/userStore";
 import { settings as appSettings } from "@/config/appSettings";
 
+// ── helpers ─────────────────────────────────────────────────────────────────
+
+/** Compute seconds remaining until `targetIso` (UTC ISO string). */
+function secsUntil(targetIso: string): number {
+  return Math.max(0, Math.floor((new Date(targetIso).getTime() - Date.now()) / 1000));
+}
+
+/** Format seconds as hh:mm:ss */
+function fmtCountdown(secs: number): string {
+  const h = Math.floor(secs / 3600);
+  const m = Math.floor((secs % 3600) / 60);
+  const s = secs % 60;
+  return [h, m, s].map((n) => String(n).padStart(2, "0")).join(":");
+}
+
+// ── component ────────────────────────────────────────────────────────────────
+
 export function EarnTaskList() {
-  const [loadingTask, setLoadingTask] = useState<string | null>(null);
-  const [dailyClaimed, setDailyClaimed] = useState(false);
-  const [subscribeClaimed, setSubscribeClaimed] = useState(false);
-  const [copied, setCopied] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-
   const updateCredits = useUserStore((s) => s.updateCredits);
-  const telegramId = useUserStore((s) => s.user?.telegram_id);
+  const user = useUserStore((s) => s.user);
+  const telegramId = user?.telegram_id;
   const botUsername = import.meta.env.VITE_BOT_USERNAME;
-
   const referralLink = `t.me/${botUsername}?start=ref_${telegramId ?? ""}`;
 
-  const withLoading = async (taskId: string, fn: () => Promise<void>) => {
-    setError(null);
-    setLoadingTask(taskId);
-    try {
-      await fn();
-    } catch (err) {
-      console.error(`Task ${taskId} failed:`, err);
-      setError("Couldn't complete that right now. Try again shortly.");
-    } finally {
-      setLoadingTask(null);
-    }
-  };
+  // ── state ──────────────────────────────────────────────────────────────────
+
+  const [loadingTask, setLoadingTask] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [copied, setCopied] = useState(false);
+
+  // Subscribe: seed from server so state survives refresh
+  const [subscribeClaimed, setSubscribeClaimed] = useState(
+    () => user?.subscribe_bonus_claimed ?? false
+  );
+
+  // Daily bonus: nextClaimAt is the UTC ISO timestamp when the next claim opens
+  // Seed from server if last_daily_claim is present
+  const [nextClaimAt, setNextClaimAt] = useState<string | null>(() => {
+    if (!user?.last_daily_claim) return null;
+    const next = new Date(new Date(user.last_daily_claim).getTime() + 24 * 3600 * 1000).toISOString();
+    return secsUntil(next) > 0 ? next : null;
+  });
+  const [countdown, setCountdown] = useState<number>(() =>
+    nextClaimAt ? secsUntil(nextClaimAt) : 0
+  );
+
+  // Sync subscribe state if the user object updates (e.g. after session refresh)
+  useEffect(() => {
+    if (user?.subscribe_bonus_claimed) setSubscribeClaimed(true);
+  }, [user?.subscribe_bonus_claimed]);
+
+  // ── countdown tick ─────────────────────────────────────────────────────────
+
+  useEffect(() => {
+    if (!nextClaimAt) return;
+
+    const tick = () => {
+      const secs = secsUntil(nextClaimAt);
+      setCountdown(secs);
+      if (secs === 0) setNextClaimAt(null); // cooldown over — reveal Claim button
+    };
+
+    tick(); // run immediately so there's no 1-second blank
+    const id = setInterval(tick, 1000);
+    return () => clearInterval(id);
+  }, [nextClaimAt]);
+
+  // ── helpers ────────────────────────────────────────────────────────────────
+
+  const withLoading = useCallback(
+    async (taskId: string, fn: () => Promise<void>) => {
+      setError(null);
+      setLoadingTask(taskId);
+      try {
+        await fn();
+      } catch (err: unknown) {
+        const msg = err instanceof Error ? err.message : "Couldn't complete that right now. Try again shortly.";
+        setError(msg);
+      } finally {
+        setLoadingTask(null);
+      }
+    },
+    []
+  );
+
+  // ── handlers ───────────────────────────────────────────────────────────────
 
   const handleDailyBonus = () =>
     withLoading("daily", async () => {
       const res = await claimDailyBonus();
       updateCredits(res.credits);
-      setDailyClaimed(true);
+      if (res.next_claim_at) {
+        setNextClaimAt(res.next_claim_at);
+        setCountdown(secsUntil(res.next_claim_at));
+      }
     });
 
   const handleWatchAd = () =>
@@ -43,22 +107,15 @@ export function EarnTaskList() {
       if (!window.Adsgram) {
         throw new Error("Adsgram SDK is not loaded. Make sure you are inside the Telegram app.");
       }
-
       const blockId = appSettings.adsgramBlockId;
-      if (!blockId) {
-        throw new Error("Ad block ID is not configured. Contact support.");
-      }
+      if (!blockId) throw new Error("Ad block ID is not configured. Contact support.");
 
-      // Initialise and show the rewarded ad
       const adController = window.Adsgram.init({ blockId });
       const result = await adController.show();
 
       if (!result.done) {
-        // User skipped or closed the ad — no reward
         throw new Error("Ad was not completed. Watch the full ad to earn credits.");
       }
-
-      // Ad fully watched — claim reward from the backend
       const res = await claimAdReward(appSettings.adWatchReward);
       updateCredits(res.credits);
     });
@@ -71,7 +128,7 @@ export function EarnTaskList() {
     });
 
   const handleGoToChannel = () => {
-    window.Telegram?.WebApp && window.open(`https://t.me/${appSettings.officialChannelUsername}`, "_blank");
+    window.open(`https://t.me/${appSettings.officialChannelUsername}`, "_blank");
   };
 
   const handleCopyLink = () => {
@@ -82,30 +139,43 @@ export function EarnTaskList() {
 
   const handleShareInvite = () => {
     const shareUrl = `https://t.me/share/url?url=${encodeURIComponent(`https://${referralLink}`)}`;
-    window.Telegram?.WebApp && window.open(shareUrl, "_blank");
+    window.open(shareUrl, "_blank");
   };
+
+  // ── render ─────────────────────────────────────────────────────────────────
+
+  const dailyCoolingDown = !!nextClaimAt && countdown > 0;
 
   return (
     <section className="stora-section">
       <h2 className="stora-section-title">Earn free credits</h2>
       {error && <p className="stora-earn-error">{error}</p>}
 
+      {/* ── Daily Bonus ── */}
       <TaskCard
         icon="🎁"
         title="Daily Bonus"
         subtitle="Claim a free bonus once every 24 hours"
         reward={appSettings.dailyBonus}
       >
-        <Button
-          fullWidth
-          variant="secondary"
-          onClick={handleDailyBonus}
-          disabled={loadingTask === "daily" || dailyClaimed}
-        >
-          {dailyClaimed ? "Claimed" : loadingTask === "daily" ? "..." : "Claim"}
-        </Button>
+        {dailyCoolingDown ? (
+          <div className="stora-countdown-wrap">
+            <span className="stora-countdown-label">Next claim in</span>
+            <span className="stora-countdown">{fmtCountdown(countdown)}</span>
+          </div>
+        ) : (
+          <Button
+            fullWidth
+            variant="secondary"
+            onClick={handleDailyBonus}
+            disabled={loadingTask === "daily"}
+          >
+            {loadingTask === "daily" ? "Claiming…" : "Claim"}
+          </Button>
+        )}
       </TaskCard>
 
+      {/* ── Invite Friends ── */}
       <TaskCard
         icon="👥"
         title="Invite friends"
@@ -125,6 +195,7 @@ export function EarnTaskList() {
         </div>
       </TaskCard>
 
+      {/* ── Watch Ad ── */}
       <TaskCard
         icon="🎬"
         title="Watch an ad"
@@ -132,26 +203,33 @@ export function EarnTaskList() {
         reward={appSettings.adWatchReward}
       >
         <Button fullWidth variant="secondary" onClick={handleWatchAd} disabled={loadingTask === "watch_ad"}>
-          {loadingTask === "watch_ad" ? "..." : "Watch"}
+          {loadingTask === "watch_ad" ? "Loading…" : "Watch"}
         </Button>
       </TaskCard>
 
+      {/* ── Subscribe ── */}
       <TaskCard
         icon="📣"
         title="Subscribe to our channel"
         subtitle="Stay updated with news and announcements"
         reward={appSettings.subscribeBonus}
       >
-        <Button fullWidth variant="secondary" onClick={handleGoToChannel}>
-          Go to channel
-        </Button>
-        <Button
-          fullWidth
-          onClick={handleSubscribeCheck}
-          disabled={loadingTask === "subscribe" || subscribeClaimed}
-        >
-          {subscribeClaimed ? "Claimed" : loadingTask === "subscribe" ? "..." : "Check"}
-        </Button>
+        {subscribeClaimed ? (
+          <div className="stora-subscribed-badge">✅ Claimed — thanks for subscribing!</div>
+        ) : (
+          <>
+            <Button fullWidth variant="secondary" onClick={handleGoToChannel}>
+              Go to channel
+            </Button>
+            <Button
+              fullWidth
+              onClick={handleSubscribeCheck}
+              disabled={loadingTask === "subscribe"}
+            >
+              {loadingTask === "subscribe" ? "Checking…" : "Check"}
+            </Button>
+          </>
+        )}
       </TaskCard>
 
       <style>{`
@@ -189,6 +267,36 @@ export function EarnTaskList() {
           font-size: 16px;
           cursor: pointer;
           flex-shrink: 0;
+        }
+        /* countdown */
+        .stora-countdown-wrap {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          gap: 2px;
+          padding: 10px 0;
+          width: 100%;
+        }
+        .stora-countdown-label {
+          font-size: 11px;
+          color: var(--tg-hint-color);
+          text-transform: uppercase;
+          letter-spacing: 0.06em;
+        }
+        .stora-countdown {
+          font-size: 22px;
+          font-weight: 700;
+          letter-spacing: 0.04em;
+          color: var(--tg-text-color);
+          font-variant-numeric: tabular-nums;
+        }
+        /* subscribe claimed */
+        .stora-subscribed-badge {
+          font-size: 13px;
+          color: var(--tg-hint-color);
+          text-align: center;
+          padding: 10px 0;
+          width: 100%;
         }
       `}</style>
     </section>

@@ -25,6 +25,8 @@ def _to_user_out(user_doc: dict) -> UserOut:
         timezone=user_doc.get("timezone"),
         is_onboarded=user_doc.get("is_onboarded", False),
         credits=user_doc.get("credits", 0),
+        last_daily_claim=user_doc.get("last_daily_claim"),
+        subscribe_bonus_claimed=user_doc.get("subscribe_bonus_claimed", False),
     )
 
 
@@ -44,7 +46,24 @@ async def start_session(
         photo_url=tg_user.get("photo_url"),
         language=tg_user.get("language_code", "en"),
     )
-    user_doc, _ = await user_crud.create_user(db, user_create)
+    user_doc, is_new = await user_crud.create_user(db, user_create)
+
+    # Always sync the latest Telegram profile data so name/photo changes show immediately
+    if not is_new:
+        profile_update = {
+            "username": tg_user.get("username"),
+            "first_name": tg_user.get("first_name"),
+            "photo_url": tg_user.get("photo_url"),
+            "language": tg_user.get("language_code", user_doc.get("language", "en")),
+        }
+        # Only write if something actually changed (avoids unnecessary DB writes)
+        if any(user_doc.get(k) != v for k, v in profile_update.items()):
+            await db.users.update_one(
+                {"telegram_id": tg_user["id"]},
+                {"$set": profile_update},
+            )
+            user_doc = await user_crud.get_user(db, tg_user["id"])
+
     return _to_user_out(user_doc)
 
 

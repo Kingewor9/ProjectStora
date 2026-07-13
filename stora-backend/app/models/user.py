@@ -27,6 +27,7 @@ class UserInDB(UserBase):
     is_onboarded: bool = False
     credits: int = 10
     last_daily_claim: Optional[datetime] = None
+    subscribe_bonus_claimed: bool = False
     referred_by: Optional[int] = None  # telegram_id of inviter
     created_at: datetime = Field(default_factory=datetime.utcnow)
 
@@ -41,7 +42,11 @@ class UserOut(BaseModel):
     timezone: Optional[str]
     is_onboarded: bool
     credits: int
+    # Bonus-state fields so the frontend can seed the correct UI on load
+    last_daily_claim: Optional[datetime] = None
+    subscribe_bonus_claimed: bool = False
 
 
 class OnboardingRequest(BaseModel):
     channel_id: str  # e.g. "-1001234567890", pasted by user via User Info bot
+
