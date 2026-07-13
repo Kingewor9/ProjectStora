@@ -19,10 +19,10 @@ export function OnboardingPage() {
       setUser(user);
     } catch (err: any) {
       const errorDetails = err?.response?.data?.detail;
-      const fallbackMsg = err.message === "Network Error" 
-        ? "Network Error: Could not connect to the server (check your CORS or API URL settings)." 
+      const fallbackMsg = err.message === "Network Error"
+        ? "Network Error: Could not connect to the server (check your CORS or API URL settings)."
         : `Couldn't validate channel. (Debug: ${err.message || 'unknown error'})`;
-      
+
       setError(errorDetails || fallbackMsg);
     } finally {
       setIsSubmitting(false);
@@ -44,7 +44,7 @@ export function OnboardingPage() {
         </li>
         <li>
           <span className="stora-step-num">2</span>
-          Add <strong>@storaofficial_bot{botUsername}</strong> as an admin in that channel
+          Add <strong>@{botUsername}</strong> as an admin in that channel
         </li>
         <li>
           <span className="stora-step-num">3</span>
