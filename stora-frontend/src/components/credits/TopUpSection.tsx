@@ -36,22 +36,32 @@ export function TopUpSection() {
         return;
       }
 
+      const invoiceUrl = invoice.invoice_link?.trim();
+      if (!invoiceUrl) {
+        throw new Error("The checkout link was empty. Try again.");
+      }
+
       if (typeof webApp.openInvoice !== "function") {
-        // Older Telegram clients don't expose openInvoice — fall back to
-        // just opening the link directly, which still triggers Telegram's
-        // native payment sheet.
-        window.open(invoice.invoice_link, "_blank");
+        window.open(invoiceUrl, "_blank", "noopener,noreferrer");
         return;
       }
 
-      webApp.openInvoice(invoice.invoice_link, async (status) => {
-        if (status === "paid") {
-          const balance = await fetchBalance();
-          updateCredits(balance.credits);
-        } else if (status === "failed") {
-          setError("Payment failed. Try again.");
+      try {
+        webApp.openInvoice(invoiceUrl, async (status) => {
+          if (status === "paid") {
+            const balance = await fetchBalance();
+            updateCredits(balance.credits);
+          } else if (status === "failed") {
+            setError("Payment failed. Try again.");
+          }
+        });
+      } catch (openInvoiceError) {
+        console.warn("openInvoice failed, opening invoice URL directly", openInvoiceError);
+        const fallbackWindow = window.open(invoiceUrl, "_blank", "noopener,noreferrer");
+        if (!fallbackWindow) {
+          window.location.href = invoiceUrl;
         }
-      });
+      }
     } catch (err: any) {
       console.error("Failed to start top-up checkout:", err);
       const detail = err?.response?.data?.detail;
