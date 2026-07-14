@@ -36,6 +36,14 @@ export function TopUpSection() {
         return;
       }
 
+      if (typeof webApp.openInvoice !== "function") {
+        // Older Telegram clients don't expose openInvoice — fall back to
+        // just opening the link directly, which still triggers Telegram's
+        // native payment sheet.
+        window.open(invoice.invoice_link, "_blank");
+        return;
+      }
+
       webApp.openInvoice(invoice.invoice_link, async (status) => {
         if (status === "paid") {
           const balance = await fetchBalance();
@@ -45,9 +53,13 @@ export function TopUpSection() {
         }
       });
     } catch (err: any) {
-      console.error("Failed to create top-up invoice:", err);
+      console.error("Failed to start top-up checkout:", err);
       const detail = err?.response?.data?.detail;
-      setError(detail ? `${detail}` : "Couldn't start checkout. Try again.");
+      // TEMP DEBUG: show the real client-side error too, since this can
+      // fail after the backend already succeeded (e.g. openInvoice itself
+      // throwing). Revert to a plain generic message once confirmed fixed.
+      const raw = err?.message ?? String(err);
+      setError(detail ?? `Couldn't start checkout: ${raw}`);
     } finally {
       setIsSubmitting(false);
     }
