@@ -113,12 +113,23 @@ async def create_topup_invoice(
             prices=[LabeledPrice(label=f"{credit_amount} credits", amount=stars_cost)],
         )
     except Exception as e:
-        # TEMP DEBUG — revert to a generic message once confirmed working.
-        raise HTTPException(400, f"Debug error: {type(e).__name__}: {str(e)}")
+        # Normalize error for the client — avoid leaking internal traceback.
+        raise HTTPException(400, "Couldn't create invoice. Try again later.")
+
+    # aiogram may return an object or mapping for the invoice link depending
+    # on version; ensure we return a plain string URL that WebApp.openInvoice
+    # expects (some clients reject non-string values and return
+    # WebAppInvoiceUrlInvalid).
+    if hasattr(invoice_link, "url"):
+        invoice_url = getattr(invoice_link, "url")
+    elif isinstance(invoice_link, dict):
+        invoice_url = invoice_link.get("url") or invoice_link.get("invoice_link") or str(invoice_link)
+    else:
+        invoice_url = str(invoice_link)
 
     return {
         "credit_amount": credit_amount,
         "stars_cost": stars_cost,
         "payload": payload,
-        "invoice_link": invoice_link,
+        "invoice_link": invoice_url,
     }
