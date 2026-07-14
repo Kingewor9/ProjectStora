@@ -4,6 +4,7 @@ import { TaskCard } from "./TaskCard";
 import { claimDailyBonus, claimSubscribeBonus, claimAdReward } from "@/api/credits.api";
 import { useUserStore } from "@/store/userStore";
 import { settings as appSettings } from "@/config/appSettings";
+import { showRewardedAd } from "@/utils/rewardedAd";
 
 // ── helpers ─────────────────────────────────────────────────────────────────
 
@@ -104,18 +105,7 @@ export function EarnTaskList() {
 
   const handleWatchAd = () =>
     withLoading("watch_ad", async () => {
-      if (!window.Adsgram) {
-        throw new Error("Adsgram SDK is not loaded. Make sure you are inside the Telegram app.");
-      }
-      const blockId = appSettings.adsgramBlockId;
-      if (!blockId) throw new Error("Ad block ID is not configured. Contact support.");
-
-      const adController = window.Adsgram.init({ blockId });
-      const result = await adController.show();
-
-      if (!result.done) {
-        throw new Error("Ad was not completed. Watch the full ad to earn credits.");
-      }
+      await showRewardedAd();
       const res = await claimAdReward(appSettings.adWatchReward);
       updateCredits(res.credits);
     });

@@ -3,7 +3,7 @@
 interface ImportMetaEnv {
   readonly VITE_API_BASE_URL: string;
   readonly VITE_BOT_USERNAME: string;
-  readonly VITE_ADSGRAM_BLOCK_ID: string;
+  readonly VITE_GIGAPUB_SCRIPT_ID: string;
 }
 
 interface ImportMeta {
