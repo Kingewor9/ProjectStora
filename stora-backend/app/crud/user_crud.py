@@ -51,14 +51,63 @@ async def update_language(db: AsyncIOMotorDatabase, telegram_id: int, language: 
     return await get_user(db, telegram_id)
 
 
+async def refresh_subscription_status(db: AsyncIOMotorDatabase, telegram_id: int) -> Optional[dict]:
+    user = await get_user(db, telegram_id)
+    if not user:
+        return None
+
+    expires_at = user.get("subscription_expires_at")
+    if user.get("plan") == "unlimited" and expires_at:
+        if isinstance(expires_at, str):
+            expires_at = datetime.fromisoformat(expires_at)
+        if expires_at <= datetime.utcnow():
+            await db.users.update_one(
+                {"telegram_id": telegram_id},
+                {"$set": {"plan": "free", "subscription_expires_at": None}},
+            )
+            return await get_user(db, telegram_id)
+
+    return user
+
+
+async def subscribe_to_unlimited_plan(db: AsyncIOMotorDatabase, telegram_id: int, duration_days: int = 30) -> Optional[dict]:
+    user = await refresh_subscription_status(db, telegram_id)
+    if not user:
+        return None
+
+    expires_at = datetime.utcnow() + timedelta(days=duration_days)
+    await db.users.update_one(
+        {"telegram_id": telegram_id},
+        {"$set": {"plan": "unlimited", "subscription_expires_at": expires_at}},
+    )
+    return await get_user(db, telegram_id)
+
+
+async def is_unlimited_active(user: Optional[dict]) -> bool:
+    if not user or user.get("plan") != "unlimited":
+        return False
+
+    expires_at = user.get("subscription_expires_at")
+    if not expires_at:
+        return False
+
+    if isinstance(expires_at, str):
+        expires_at = datetime.fromisoformat(expires_at)
+
+    return expires_at > datetime.utcnow()
+
+
 async def adjust_credits(db: AsyncIOMotorDatabase, telegram_id: int, amount: int) -> Optional[dict]:
     """
     Positive amount = credit, negative = debit.
     Returns None if debit would drop balance below 0 (insufficient funds).
     """
-    user = await get_user(db, telegram_id)
+    user = await refresh_subscription_status(db, telegram_id)
     if not user:
         return None
+
+    if amount < 0 and await is_unlimited_active(user):
+        return user
 
     new_balance = user["credits"] + amount
     if new_balance < 0:

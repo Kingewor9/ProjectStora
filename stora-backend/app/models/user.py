@@ -26,6 +26,8 @@ class UserInDB(UserBase):
     private_channel_id: Optional[str] = None
     is_onboarded: bool = False
     credits: int = 10
+    plan: str = "free"
+    subscription_expires_at: Optional[datetime] = None
     last_daily_claim: Optional[datetime] = None
     subscribe_bonus_claimed: bool = False
     referred_by: Optional[int] = None  # telegram_id of inviter
@@ -42,6 +44,8 @@ class UserOut(BaseModel):
     timezone: Optional[str]
     is_onboarded: bool
     credits: int
+    plan: str
+    subscription_expires_at: Optional[datetime] = None
     # Bonus-state fields so the frontend can seed the correct UI on load
     last_daily_claim: Optional[datetime] = None
     subscribe_bonus_claimed: bool = False

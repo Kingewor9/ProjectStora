@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { CreditsBadge } from "@/components/ui/CreditsBadge";
 import { SearchBar } from "@/components/ui/SearchBar";
 import { FolderList } from "@/components/folders/FolderList";
@@ -8,15 +8,13 @@ import { useFolderStore } from "@/store/folderStore";
 import { useUserStore } from "@/store/userStore";
 import { useDebounce } from "@/hooks/useDebounce";
 import { fetchFolders, createFolder } from "@/api/folders.api";
-import { claimAdReward } from "@/api/credits.api";
-import { initializeOfferWallSDK, openOfferWall } from "@/utils/gigaOfferWall";
 import type { Folder } from "@/types/folder.types";
 import { useNavigate } from "react-router-dom";
 
 export function FoldersPage() {
   const navigate = useNavigate();
   const credits = useUserStore((s) => s.user?.credits ?? 0);
-  const updateCredits = useUserStore((s) => s.updateCredits);
+  const plan = useUserStore((s) => s.user?.plan ?? "free");
   const { currentFolderId, breadcrumbs, folders, setFolders, enterFolder, goToBreadcrumb, goToRoot } =
     useFolderStore();
 
@@ -24,8 +22,6 @@ export function FoldersPage() {
   const debouncedSearch = useDebounce(search);
   const [isModalOpen, setModalOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
-  const [offerWallState, setOfferWallState] = useState<"idle" | "loading" | "ready">("idle");
-  const [offerWallError, setOfferWallError] = useState<string | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -59,73 +55,23 @@ export function FoldersPage() {
 
   const activeFolder = breadcrumbs.length ? breadcrumbs[breadcrumbs.length - 1] : null;
 
-  const handleOfferWallReward = useCallback(
-    async (_sdk: unknown, data: { amount?: number | string }) => {
-      try {
-        const rewardAmount = Number(data.amount ?? 100);
-        const res = await claimAdReward(rewardAmount);
-        updateCredits(res.credits);
-      } catch (error) {
-        console.error("Failed to credit offer wall reward", error);
-      }
-    },
-    [updateCredits]
-  );
-
-  useEffect(() => {
-    let cancelled = false;
-
-    const initOfferWall = async () => {
-      try {
-        setOfferWallState("loading");
-        await initializeOfferWallSDK({ onRewardClaim: handleOfferWallReward });
-        if (!cancelled) {
-          setOfferWallState("ready");
-          setOfferWallError(null);
-        }
-      } catch (error) {
-        if (!cancelled) {
-          setOfferWallState("idle");
-          setOfferWallError(error instanceof Error ? error.message : "The offer wall is unavailable right now.");
-        }
-      }
-    };
-
-    void initOfferWall();
-
-    return () => {
-      cancelled = true;
-    };
-  }, [handleOfferWallReward]);
-
-  const handleOpenOfferWall = async () => {
-    setOfferWallError(null);
-    try {
-      setOfferWallState("loading");
-      await initializeOfferWallSDK({ onRewardClaim: handleOfferWallReward });
-      openOfferWall();
-      setOfferWallState("ready");
-    } catch (error) {
-      setOfferWallState("idle");
-      setOfferWallError(error instanceof Error ? error.message : "The offer wall is unavailable right now.");
-    }
+  const handleOpenUnlimitedPlan = () => {
+    navigate("/unlimited");
   };
 
   return (
     <div className="stora-page">
       <div className="stora-home-header">
-        <button className="stora-home-hero" onClick={handleOpenOfferWall} disabled={offerWallState === "loading"}>
+        <button className="stora-home-hero" onClick={handleOpenUnlimitedPlan}>
           <div className="stora-home-hero-copy">
-            <span className="stora-home-hero-pill">Free credits</span>
-            <h1 className="stora-home-hero-title">Claim 100 Free Credits</h1>
-            <p className="stora-home-hero-subtitle">Open the GigaPub offer wall and complete offers to top up your balance.</p>
+            <span className="stora-home-hero-pill">{plan === "unlimited" ? "Unlimited active" : "New plan"}</span>
+            <h1 className="stora-home-hero-title">Get Unlimited Credits</h1>
+            <p className="stora-home-hero-subtitle">Unlock unlimited saving, zero credit drain, and a smoother Stora experience.</p>
           </div>
-          <span className="stora-home-hero-action">{offerWallState === "loading" ? "Loading…" : "Open offers"}</span>
+          <span className="stora-home-hero-action">View plan</span>
         </button>
         <CreditsBadge credits={credits} />
       </div>
-
-      {offerWallError && <p className="stora-offerwall-error">{offerWallError}</p>}
 
       <Breadcrumbs crumbs={breadcrumbs} onNavigate={goToBreadcrumb} onGoRoot={goToRoot} />
 
@@ -216,11 +162,6 @@ export function FoldersPage() {
           padding: 8px 12px;
           border-radius: var(--stora-radius-pill);
           background: rgba(255,255,255,0.2);
-        }
-        .stora-offerwall-error {
-          margin: 0 0 var(--stora-space-3);
-          font-size: 13px;
-          color: var(--tg-destructive-color);
         }
         .stora-new-folder-btn {
           background: none;

@@ -29,6 +29,8 @@ class Settings(BaseSettings):
     INVITE_BONUS_CREDITS: int = 15
     SUBSCRIBE_BONUS_CREDITS: int = 5
     STARS_TO_CREDITS_RATE: int = 5  # 1 credit = N telegram stars
+    UNLIMITED_PLAN_STARS_COST: int = 250
+    UNLIMITED_PLAN_DURATION_DAYS: int = 30
 
     # --- Ads ---
     ADSGRAM_BLOCK_ID: str | None = None

@@ -54,6 +54,9 @@ export function SettingsPage() {
             {user?.username ? `@${user.username}` : user?.first_name}
           </span>
           <span className="stora-settings-id">{user?.telegram_id}</span>
+          {user?.plan === "unlimited" ? (
+            <span className="stora-settings-plan-badge">Unlimited</span>
+          ) : null}
         </div>
       </div>
 
@@ -150,6 +153,18 @@ export function SettingsPage() {
           display: block;
           font-size: 13px;
           color: var(--tg-hint-color);
+        }
+        .stora-settings-plan-badge {
+          display: inline-flex;
+          margin-top: 8px;
+          padding: 4px 8px;
+          border-radius: var(--stora-radius-pill);
+          background: color-mix(in srgb, var(--tg-button-color) 16%, transparent);
+          color: var(--tg-button-color);
+          font-size: 12px;
+          font-weight: 700;
+          text-transform: uppercase;
+          letter-spacing: 0.06em;
         }
         .stora-settings-section {
           background: var(--tg-card-bg);

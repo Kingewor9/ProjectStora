@@ -1,5 +1,7 @@
 export interface BalanceResponse {
   credits: number;
+  plan?: string;
+  subscription_expires_at?: string | null;
 }
 
 export interface ClaimResponse {

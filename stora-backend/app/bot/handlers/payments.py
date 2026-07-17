@@ -12,11 +12,14 @@ Both arrive through the existing update stream (polling or webhook —
 whichever the bot is already using), so nothing new to deploy here.
 """
 
+from datetime import datetime
+
 from aiogram import Router, F
 from aiogram.types import PreCheckoutQuery, Message
 
 from app.database import get_db
 from app.crud import user_crud
+from app.config import settings
 
 router = Router(name="payments")
 
@@ -33,11 +36,44 @@ async def handle_pre_checkout(pre_checkout_query: PreCheckoutQuery):
 async def handle_successful_payment(message: Message):
     db = get_db()
     payment = message.successful_payment
+    payload = getattr(payment, "invoice_payload", "") or ""
+
+    if payload.startswith("unlimited_"):
+        try:
+            _, telegram_id_str = payload.split("_", 1)
+            telegram_id = int(telegram_id_str)
+        except (ValueError, AttributeError):
+            await message.answer(
+                "Payment received, but we couldn't match it to your account automatically. "
+                "Contact support with your payment details."
+            )
+            return
+
+        updated_user = await user_crud.subscribe_to_unlimited_plan(
+            db,
+            telegram_id,
+            settings.UNLIMITED_PLAN_DURATION_DAYS,
+        )
+        if updated_user:
+            expires_at = updated_user.get("subscription_expires_at")
+            if isinstance(expires_at, str):
+                expires_at = datetime.fromisoformat(expires_at)
+            formatted = expires_at.strftime("%b %d, %Y") if isinstance(expires_at, datetime) else "soon"
+            await message.answer(
+                "🎉 Stora Unlimited is now active! You can save files without spending credits until "
+                f"{formatted}."
+            )
+        else:
+            await message.answer(
+                "Payment received, but activating Stora Unlimited failed. Contact support — "
+                f"reference: {payment.telegram_payment_charge_id}"
+            )
+        return
 
     # payload was set as f"topup_{telegram_id}_{credit_amount}" when the
     # invoice link was created in credits.py
     try:
-        _, telegram_id_str, credit_amount_str = payment.invoice_payload.split("_")
+        _, telegram_id_str, credit_amount_str = payload.split("_")
         telegram_id = int(telegram_id_str)
         credit_amount = int(credit_amount_str)
     except (ValueError, AttributeError):

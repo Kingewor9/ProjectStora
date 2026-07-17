@@ -29,3 +29,10 @@ export async function createTopUpInvoice(creditAmount: number): Promise<TopUpInv
   });
   return data;
 }
+
+export async function createUnlimitedPlanInvoice(): Promise<TopUpInvoice & { plan: string; period_days: number }> {
+  const { data } = await client.post<TopUpInvoice & { plan: string; period_days: number }>(
+    "/api/credits/unlimited/create-invoice"
+  );
+  return data;
+}

@@ -22,7 +22,7 @@ async def handle_folder_pick(callback: CallbackQuery):
         await callback.answer()
         return
 
-    user = await user_crud.get_user(db, callback.from_user.id)
+    user = await user_crud.refresh_subscription_status(db, callback.from_user.id)
     pending = await file_crud.get_latest_pending_upload(db, callback.from_user.id)
 
     if not pending:
@@ -30,19 +30,22 @@ async def handle_folder_pick(callback: CallbackQuery):
         await callback.answer()
         return
 
-    if user["credits"] < settings.SAVE_FILE_COST:
-        await callback.message.edit_text(
-            f"You need {settings.SAVE_FILE_COST} credits to save a file, "
-            f"but you only have {user['credits']}. Top up or watch an ad in the app to earn more."
-        )
-        await callback.answer()
-        return
+    if user.get("plan") == "unlimited":
+        updated_user = user
+    else:
+        if user["credits"] < settings.SAVE_FILE_COST:
+            await callback.message.edit_text(
+                f"You need {settings.SAVE_FILE_COST} credits to save a file, "
+                f"but you only have {user['credits']}. Top up or watch an ad in the app to earn more."
+            )
+            await callback.answer()
+            return
 
-    updated_user = await user_crud.adjust_credits(db, callback.from_user.id, -settings.SAVE_FILE_COST)
-    if not updated_user:
-        await callback.message.edit_text("Couldn't deduct credits. Please try again.")
-        await callback.answer()
-        return
+        updated_user = await user_crud.adjust_credits(db, callback.from_user.id, -settings.SAVE_FILE_COST)
+        if not updated_user:
+            await callback.message.edit_text("Couldn't deduct credits. Please try again.")
+            await callback.answer()
+            return
 
     file_create = FileCreate(
         user_id=callback.from_user.id,
@@ -55,7 +58,10 @@ async def handle_folder_pick(callback: CallbackQuery):
     await file_crud.create_file(db, file_create)
     await file_crud.delete_pending_upload(db, pending["_id"])
 
-    await callback.message.edit_text(
-        f"Saved! -{settings.SAVE_FILE_COST} credits (balance: {updated_user['credits']})"
-    )
+    if user.get("plan") == "unlimited":
+        await callback.message.edit_text("Saved! Your Stora Unlimited plan covers this save.")
+    else:
+        await callback.message.edit_text(
+            f"Saved! -{settings.SAVE_FILE_COST} credits (balance: {updated_user['credits']})"
+        )
     await callback.answer("File saved")

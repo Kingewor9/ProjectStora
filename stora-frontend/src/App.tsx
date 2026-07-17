@@ -7,6 +7,7 @@ import { FoldersPage } from "@/pages/FoldersPage";
 import { FilesPage } from "@/pages/FilesPage";
 import { CreditsPage } from "@/pages/CreditsPage";
 import { SettingsPage } from "@/pages/SettingsPage";
+import { UnlimitedPlanPage } from "@/pages/UnlimitedPlanPage";
 
 function AppShell() {
   const { user, isLoading } = useOnboardingCheck();
@@ -27,6 +28,7 @@ function AppShell() {
         <Route path="/folders" element={<FoldersPage />} />
         <Route path="/files/:folderId" element={<FilesPage />} />
         <Route path="/credits" element={<CreditsPage />} />
+        <Route path="/unlimited" element={<UnlimitedPlanPage />} />
         <Route path="/settings" element={<SettingsPage />} />
         <Route path="*" element={<Navigate to="/folders" replace />} />
       </Routes>

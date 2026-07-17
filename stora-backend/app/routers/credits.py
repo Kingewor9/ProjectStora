@@ -16,10 +16,14 @@ async def get_balance(
     tg_user: dict = Depends(get_current_telegram_user),
     db: AsyncIOMotorDatabase = Depends(get_db),
 ):
-    user = await user_crud.get_user(db, tg_user["id"])
+    user = await user_crud.refresh_subscription_status(db, tg_user["id"])
     if not user:
         raise HTTPException(404, "User not found")
-    return {"credits": user["credits"]}
+    return {
+        "credits": user["credits"],
+        "plan": user.get("plan", "free"),
+        "subscription_expires_at": user.get("subscription_expires_at"),
+    }
 
 
 @router.post("/daily-bonus")
@@ -82,6 +86,41 @@ async def claim_invite_bonus(
     if not updated:
         raise HTTPException(400, "Could not credit invite bonus")
     return {"credits": updated["credits"], "claimed": settings.INVITE_BONUS_CREDITS}
+
+
+@router.post("/unlimited/create-invoice")
+async def create_unlimited_plan_invoice(
+    tg_user: dict = Depends(get_current_telegram_user),
+):
+    stars_cost = settings.UNLIMITED_PLAN_STARS_COST
+    payload = f"unlimited_{tg_user['id']}"
+
+    try:
+        invoice_link = await bot.create_invoice_link(
+            title="Stora Unlimited",
+            description="Unlock unlimited saving, zero credit drain, and no ads for one month.",
+            payload=payload,
+            provider_token="",
+            currency="XTR",
+            prices=[LabeledPrice(label="Stora Unlimited", amount=stars_cost)],
+        )
+    except Exception:
+        raise HTTPException(400, "Couldn't create invoice. Try again later.")
+
+    if hasattr(invoice_link, "url"):
+        invoice_url = getattr(invoice_link, "url")
+    elif isinstance(invoice_link, dict):
+        invoice_url = invoice_link.get("url") or invoice_link.get("invoice_link") or str(invoice_link)
+    else:
+        invoice_url = str(invoice_link)
+
+    return {
+        "plan": "unlimited",
+        "stars_cost": stars_cost,
+        "payload": payload,
+        "invoice_link": invoice_url,
+        "period_days": settings.UNLIMITED_PLAN_DURATION_DAYS,
+    }
 
 
 @router.post("/topup/create-invoice")

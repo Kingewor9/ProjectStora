@@ -25,6 +25,8 @@ def _to_user_out(user_doc: dict) -> UserOut:
         timezone=user_doc.get("timezone"),
         is_onboarded=user_doc.get("is_onboarded", False),
         credits=user_doc.get("credits", 0),
+        plan=user_doc.get("plan", "free"),
+        subscription_expires_at=user_doc.get("subscription_expires_at"),
         last_daily_claim=user_doc.get("last_daily_claim"),
         subscribe_bonus_claimed=user_doc.get("subscribe_bonus_claimed", False),
     )
@@ -64,6 +66,7 @@ async def start_session(
             )
             user_doc = await user_crud.get_user(db, tg_user["id"])
 
+    user_doc = await user_crud.refresh_subscription_status(db, tg_user["id"])
     return _to_user_out(user_doc)
 
 
