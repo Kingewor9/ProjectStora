@@ -15,7 +15,7 @@ logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/api/auth", tags=["auth"])
 
 
-def _to_user_out(user_doc: dict) -> UserOut:
+def _to_user_out(user_doc: dict, redirect_shared_token: str | None = None) -> UserOut:
     return UserOut(
         telegram_id=user_doc["telegram_id"],
         username=user_doc.get("username"),
@@ -29,6 +29,7 @@ def _to_user_out(user_doc: dict) -> UserOut:
         subscription_expires_at=user_doc.get("subscription_expires_at"),
         last_daily_claim=user_doc.get("last_daily_claim"),
         subscribe_bonus_claimed=user_doc.get("subscribe_bonus_claimed", False),
+        redirect_shared_token=redirect_shared_token,
     )
 
 
@@ -150,4 +151,5 @@ async def configure_channel(
                 # Non-fatal — log and continue even if the notification fails
                 logger.warning(f"Failed to send referral notification to {referrer_id}: {e}")
 
-    return _to_user_out(user_doc)
+    redirect_shared_token = await user_crud.pop_pending_share_token(db, tg_user["id"])
+    return _to_user_out(user_doc, redirect_shared_token=redirect_shared_token)

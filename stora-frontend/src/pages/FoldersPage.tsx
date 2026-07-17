@@ -1,9 +1,10 @@
 import { useEffect, useState } from "react";
-import { Infinity } from "lucide-react";
+import { Infinity, Share2 } from "lucide-react";
 import { CreditsBadge } from "@/components/ui/CreditsBadge";
 import { SearchBar } from "@/components/ui/SearchBar";
 import { FolderList } from "@/components/folders/FolderList";
 import { NewFolderModal } from "@/components/folders/NewFolderModal";
+import { ShareFolderModal } from "@/components/folders/ShareFolderModal";
 import { Breadcrumbs } from "@/components/folders/Breadcrumbs";
 import { useFolderStore } from "@/store/folderStore";
 import { useUserStore } from "@/store/userStore";
@@ -17,6 +18,7 @@ export function FoldersPage() {
   const credits = useUserStore((s) => s.user?.credits ?? 0);
   const { currentFolderId, breadcrumbs, folders, setFolders, enterFolder, goToBreadcrumb, goToRoot } =
     useFolderStore();
+  const [isShareModalOpen, setShareModalOpen] = useState(false);
 
   const [search, setSearch] = useState("");
   const debouncedSearch = useDebounce(search);
@@ -82,6 +84,13 @@ export function FoldersPage() {
         </button>
       )}
 
+      {activeFolder && (
+        <button className="stora-share-folder-btn" onClick={() => setShareModalOpen(true)}>
+          <Share2 size={16} strokeWidth={2.2} />
+          <span>Share this folder</span>
+        </button>
+      )}
+
       <div className="stora-section-header">
         <h2 className="stora-section-title">{activeFolder ? "Subfolders" : "My Folders"}</h2>
         <button className="stora-new-folder-btn" onClick={() => setModalOpen(true)}>
@@ -98,6 +107,16 @@ export function FoldersPage() {
       )}
 
       <NewFolderModal isOpen={isModalOpen} onClose={() => setModalOpen(false)} onCreate={handleCreateFolder} />
+
+      {activeFolder && (
+        <ShareFolderModal
+          isOpen={isShareModalOpen}
+          onClose={() => setShareModalOpen(false)}
+          folderId={activeFolder.id}
+          folderName={activeFolder.name}
+          onShareStateChange={() => { /* badge updates on next list refresh */ }}
+        />
+      )}
 
       <style>{`
         .stora-home-header {
@@ -159,6 +178,22 @@ export function FoldersPage() {
           padding: 14px;
           box-shadow: var(--stora-shadow-card);
           color: var(--tg-link-color);
+          font-size: 14px;
+          font-weight: 600;
+          margin-bottom: var(--stora-space-4);
+          cursor: pointer;
+        }
+        .stora-share-folder-btn {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          width: 100%;
+          background: var(--tg-card-bg);
+          border: none;
+          border-radius: var(--stora-radius-md);
+          padding: 14px;
+          box-shadow: var(--stora-shadow-card);
+          color: var(--tg-text-color);
           font-size: 14px;
           font-weight: 600;
           margin-bottom: var(--stora-space-4);

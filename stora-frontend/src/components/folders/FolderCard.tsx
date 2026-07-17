@@ -27,7 +27,10 @@ export function FolderCard({ folder, onClick }: FolderCardProps) {
         </svg>
       </div>
       <div className="stora-folder-info">
-        <span className="stora-folder-name">{folder.name}</span>
+        <span className="stora-folder-name">
+          {folder.name}
+          {folder.is_shared && <span className="stora-shared-badge">Shared</span>}
+        </span>
         <span className="stora-folder-details">{details.join(" · ")}</span>
       </div>
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
@@ -70,6 +73,20 @@ export function FolderCard({ folder, onClick }: FolderCardProps) {
           white-space: nowrap;
           overflow: hidden;
           text-overflow: ellipsis;
+          display: inline-flex;
+          align-items: center;
+          gap: 6px;
+        }
+        .stora-shared-badge {
+          flex-shrink: 0;
+          font-size: 10px;
+          font-weight: 700;
+          text-transform: uppercase;
+          letter-spacing: 0.03em;
+          color: var(--tg-accent-color);
+          background: color-mix(in srgb, var(--tg-accent-color) 14%, transparent);
+          border-radius: var(--stora-radius-pill);
+          padding: 2px 8px;
         }
         .stora-folder-details {
           font-size: 13px;

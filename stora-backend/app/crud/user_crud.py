@@ -105,6 +105,24 @@ async def update_language(db: AsyncIOMotorDatabase, telegram_id: int, language: 
     return await get_user(db, telegram_id)
 
 
+async def set_pending_share_token(db: AsyncIOMotorDatabase, telegram_id: int, token: str) -> None:
+    """Stashes a share invite so it survives the onboarding detour — read
+    and cleared once by configure_channel after onboarding completes."""
+    await db.users.update_one(
+        {"telegram_id": telegram_id}, {"$set": {"pending_share_token": token}}
+    )
+
+
+async def pop_pending_share_token(db: AsyncIOMotorDatabase, telegram_id: int) -> Optional[str]:
+    user = await get_user(db, telegram_id)
+    token = user.get("pending_share_token") if user else None
+    if token:
+        await db.users.update_one(
+            {"telegram_id": telegram_id}, {"$unset": {"pending_share_token": ""}}
+        )
+    return token
+
+
 async def refresh_subscription_status(db: AsyncIOMotorDatabase, telegram_id: int) -> Optional[dict]:
     user = await get_user(db, telegram_id)
     if not user:

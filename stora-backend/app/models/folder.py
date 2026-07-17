@@ -26,6 +26,7 @@ class FolderOut(BaseModel):
     parent_id: Optional[str]
     file_count: int = 0
     subfolder_count: int = 0
+    is_shared: bool = False
     created_at: datetime
 
 

@@ -5,18 +5,19 @@ from motor.motor_asyncio import AsyncIOMotorDatabase
 from app.database import get_db
 from app.utils.telegram_auth import get_current_telegram_user
 from app.models.folder import FolderCreate, FolderOut
-from app.crud import folder_crud
+from app.crud import folder_crud, share_crud
 
 router = APIRouter(prefix="/api/folders", tags=["folders"])
 
 
-def _to_folder_out(doc: dict, file_count: int, subfolder_count: int) -> FolderOut:
+def _to_folder_out(doc: dict, file_count: int, subfolder_count: int, is_shared: bool = False) -> FolderOut:
     return FolderOut(
         id=str(doc["_id"]),
         name=doc["name"],
         parent_id=doc.get("parent_id"),
         file_count=file_count,
         subfolder_count=subfolder_count,
+        is_shared=is_shared,
         created_at=doc["created_at"],
     )
 
@@ -29,12 +30,15 @@ async def get_folders(
 ):
     """List folders at a given level. Omit parent_id for root."""
     folders = await folder_crud.list_folders(db, tg_user["id"], parent_id)
+    folder_ids = [str(f["_id"]) for f in folders]
+    shared_ids = await share_crud.get_shared_folder_ids(db, tg_user["id"], folder_ids)
+
     out = []
     for f in folders:
         fid = str(f["_id"])
         file_count = await folder_crud.count_files_in_folder(db, fid)
         subfolder_count = await folder_crud.count_subfolders(db, fid)
-        out.append(_to_folder_out(f, file_count, subfolder_count))
+        out.append(_to_folder_out(f, file_count, subfolder_count, is_shared=fid in shared_ids))
     return out
 
 
@@ -64,4 +68,5 @@ async def get_folder_detail(
         raise HTTPException(404, "Folder not found")
     file_count = await folder_crud.count_files_in_folder(db, folder_id)
     subfolder_count = await folder_crud.count_subfolders(db, folder_id)
-    return _to_folder_out(doc, file_count, subfolder_count)
+    shared_ids = await share_crud.get_shared_folder_ids(db, tg_user["id"], [folder_id])
+    return _to_folder_out(doc, file_count, subfolder_count, is_shared=folder_id in shared_ids)

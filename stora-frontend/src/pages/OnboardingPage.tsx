@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { configureOnboarding } from "@/api/auth.api";
 import { useUserStore } from "@/store/userStore";
 import { Button } from "@/components/ui/Button";
@@ -9,6 +10,7 @@ export function OnboardingPage() {
   const [error, setError] = useState<string | null>(null);
   const setUser = useUserStore((s) => s.setUser);
   const botUsername = import.meta.env.VITE_BOT_USERNAME;
+  const navigate = useNavigate();
 
   const handleConfigure = async () => {
     if (!channelId.trim()) return;
@@ -17,6 +19,9 @@ export function OnboardingPage() {
     try {
       const user = await configureOnboarding({ channel_id: channelId.trim() });
       setUser(user);
+      if (user.redirect_shared_token) {
+        navigate(`/shared/${user.redirect_shared_token}`);
+      }
     } catch (err: any) {
       const errorDetails = err?.response?.data?.detail;
       const fallbackMsg = err.message === "Network Error"

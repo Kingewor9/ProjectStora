@@ -11,6 +11,19 @@ def open_app_keyboard() -> InlineKeyboardMarkup:
     )
 
 
+def open_shared_folder_keyboard(token: str) -> InlineKeyboardMarkup:
+    """Sends an already-onboarded user straight into the SharedFolderPage
+    via the hash route — no backend round-trip needed for this case."""
+    return InlineKeyboardMarkup(
+        inline_keyboard=[
+            [InlineKeyboardButton(
+                text="View shared folder",
+                web_app=WebAppInfo(url=f"{settings.FRONTEND_URL}/#/shared/{token}"),
+            )]
+        ]
+    )
+
+
 def folder_picker_keyboard(folders_with_paths: list[dict]) -> InlineKeyboardMarkup:
     """
     folders_with_paths: [{"id": "...", "path": "Movies > Action"}, ...]

@@ -43,6 +43,30 @@ async def count_subfolders(db: AsyncIOMotorDatabase, folder_id: str) -> int:
     return await db.folders.count_documents({"parent_id": folder_id})
 
 
+async def get_folder_subtree(db: AsyncIOMotorDatabase, user_id: int, root_folder_id: str) -> list[dict]:
+    """
+    Returns the root folder plus every descendant folder (BFS over
+    parent_id), all owned by user_id. Root is always first in the list.
+    Used for recursive operations like sharing or (later) bulk delete.
+    """
+    root = await get_folder(db, root_folder_id, user_id)
+    if not root:
+        return []
+
+    all_folders = [root]
+    frontier = [str(root["_id"])]
+
+    while frontier:
+        cursor = db.folders.find({"user_id": user_id, "parent_id": {"$in": frontier}})
+        children = await cursor.to_list(length=None)
+        if not children:
+            break
+        all_folders.extend(children)
+        frontier = [str(c["_id"]) for c in children]
+
+    return all_folders
+
+
 def build_breadcrumb_paths(folders: list[dict]) -> dict[str, str]:
     """
     Given a flat list of folder docs, returns {folder_id: 'Movies > Action'}

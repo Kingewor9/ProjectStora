@@ -4,7 +4,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from app.config import settings
 from app.database import connect_to_mongo, close_mongo_connection
-from app.routers import auth, folders, files, credits
+from app.routers import auth, folders, files, credits, shares
 
 
 @asynccontextmanager
@@ -28,6 +28,7 @@ app.include_router(auth.router)
 app.include_router(folders.router)
 app.include_router(files.router)
 app.include_router(credits.router)
+app.include_router(shares.router)
 
 
 @app.get("/health")

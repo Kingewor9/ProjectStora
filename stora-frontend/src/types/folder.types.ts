@@ -4,6 +4,7 @@ export interface Folder {
   parent_id: string | null;
   file_count: number;
   subfolder_count: number;
+  is_shared: boolean;
   created_at: string;
 }
 

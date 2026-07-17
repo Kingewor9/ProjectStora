@@ -30,6 +30,7 @@ class UserInDB(UserBase):
     subscription_expires_at: Optional[datetime] = None
     last_daily_claim: Optional[datetime] = None
     subscribe_bonus_claimed: bool = False
+    pending_share_token: Optional[str] = None
     referred_by: Optional[int] = None  # telegram_id of inviter
     created_at: datetime = Field(default_factory=datetime.utcnow)
 
@@ -49,6 +50,9 @@ class UserOut(BaseModel):
     # Bonus-state fields so the frontend can seed the correct UI on load
     last_daily_claim: Optional[datetime] = None
     subscribe_bonus_claimed: bool = False
+    # Set only on the onboarding/configure response, when this user had a
+    # shared-folder invite waiting — tells the frontend where to redirect.
+    redirect_shared_token: Optional[str] = None
 
 
 class OnboardingRequest(BaseModel):

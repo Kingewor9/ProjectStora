@@ -24,6 +24,9 @@ async def connect_to_mongo():
     await database.db.folders.create_index([("user_id", 1), ("parent_id", 1)])
     await database.db.files.create_index([("user_id", 1), ("folder_id", 1)])
     await database.db.files.create_index([("user_id", 1), ("file_name", "text")])
+    await database.db.shares.create_index("token", unique=True)
+    await database.db.shares.create_index([("owner_id", 1), ("folder_id", 1)])
+    await database.db.share_claims.create_index([("token", 1), ("claimed_by", 1)], unique=True)
 
 
 async def close_mongo_connection():
