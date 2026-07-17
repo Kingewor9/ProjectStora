@@ -9,6 +9,7 @@ from app.database import get_db
 from app.bot.keyboards import open_app_keyboard
 from app.crud import user_crud
 from app.models.user import UserCreate
+from app.config import settings
 
 logger = logging.getLogger(__name__)
 router = Router(name="onboarding")
@@ -37,6 +38,7 @@ async def handle_start(message: Message, command: CommandObject):
         first_name=message.from_user.first_name,
     )
     user_doc, _ = await user_crud.create_user(db, user_create, referred_by=referred_by)
+    await user_crud.mark_onboarding_started(db, message.from_user.id)
 
     if user_doc.get("is_onboarded"):
         text = "Welcome back to Stora! Tap below to open your vault."

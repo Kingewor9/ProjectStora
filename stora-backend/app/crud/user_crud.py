@@ -2,6 +2,9 @@ from datetime import datetime, timedelta
 from typing import Optional, Tuple
 from motor.motor_asyncio import AsyncIOMotorDatabase
 
+FIRST_FOLLOWUP_DELAY = timedelta(hours=2)
+FOLLOWUP_REPEAT_INTERVAL = timedelta(hours=48)
+
 from app.models.user import UserCreate, UserInDB
 from app.config import settings
 
@@ -41,9 +44,60 @@ async def credit_referrer(db: AsyncIOMotorDatabase, referrer_id: int) -> Optiona
 async def complete_onboarding(db: AsyncIOMotorDatabase, telegram_id: int, channel_id: str) -> dict:
     await db.users.update_one(
         {"telegram_id": telegram_id},
-        {"$set": {"private_channel_id": channel_id, "is_onboarded": True}},
+        {
+            "$set": {
+                "private_channel_id": channel_id,
+                "is_onboarded": True,
+                "onboarding_completed_at": datetime.utcnow(),
+            }
+        },
     )
     return await get_user(db, telegram_id)
+
+
+async def mark_onboarding_started(db: AsyncIOMotorDatabase, telegram_id: int) -> dict:
+    user = await get_user(db, telegram_id)
+    if user and user.get("onboarding_started_at"):
+        return user
+
+    await db.users.update_one(
+        {"telegram_id": telegram_id},
+        {"$set": {"onboarding_started_at": datetime.utcnow()}},
+    )
+    return await get_user(db, telegram_id)
+
+
+async def record_onboarding_followup_sent(db: AsyncIOMotorDatabase, telegram_id: int) -> dict:
+    await db.users.update_one(
+        {"telegram_id": telegram_id},
+        {"$set": {"onboarding_followup_sent_at": datetime.utcnow()}},
+    )
+    return await get_user(db, telegram_id)
+
+
+async def get_due_onboarding_followups(db: AsyncIOMotorDatabase, now: Optional[datetime] = None) -> list[dict]:
+    now = now or datetime.utcnow()
+    cutoff = now - FIRST_FOLLOWUP_DELAY
+    repeat_cutoff = now - FOLLOWUP_REPEAT_INTERVAL
+
+    cursor = db.users.find(
+        {
+            "is_onboarded": False,
+            "$or": [
+                {
+                    "onboarding_started_at": {"$lte": cutoff},
+                    "onboarding_followup_sent_at": None,
+                },
+                {
+                    "onboarding_followup_sent_at": {"$lte": repeat_cutoff},
+                },
+            ],
+        }
+    )
+
+    if hasattr(cursor, "__aiter__"):
+        return [doc async for doc in cursor]
+    return [doc for doc in await cursor]
 
 
 async def update_language(db: AsyncIOMotorDatabase, telegram_id: int, language: str) -> dict:

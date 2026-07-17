@@ -11,6 +11,7 @@ class Settings(BaseSettings):
     BOT_TOKEN: str
     BOT_USERNAME: str = "StoraBot"
     USER_INFO_BOT_USERNAME: str = "userinfobot"
+    ADMIN_TELEGRAM_ID: int | None = None
 
     # --- MongoDB ---
     MONGO_URI: str

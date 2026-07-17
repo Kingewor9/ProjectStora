@@ -112,6 +112,21 @@ async def configure_channel(
     current_user = await user_crud.get_user(db, tg_user["id"])
     user_doc = await user_crud.complete_onboarding(db, tg_user["id"], payload.channel_id)
 
+    if settings.ADMIN_TELEGRAM_ID:
+        try:
+            await bot.send_message(
+                chat_id=settings.ADMIN_TELEGRAM_ID,
+                text=(
+                    "🔔 <b>New onboarding completed</b>\n\n"
+                    f"User: <b>{tg_user.get('first_name') or tg_user.get('username') or tg_user['id']}</b>\n"
+                    f"Telegram ID: <code>{tg_user['id']}</code>\n"
+                    f"Channel ID: <code>{payload.channel_id}</code>"
+                ),
+                parse_mode="HTML",
+            )
+        except Exception as exc:
+            logger.warning("Failed to notify admin about onboarding completion: %s", exc)
+
     # --- Referral reward: credit referrer and notify them via bot ---
     referrer_id: int | None = (current_user or {}).get("referred_by")
     if referrer_id:
