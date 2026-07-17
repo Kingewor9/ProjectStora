@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Infinity } from "lucide-react";
 import { CreditsBadge } from "@/components/ui/CreditsBadge";
 import { SearchBar } from "@/components/ui/SearchBar";
 import { FolderList } from "@/components/folders/FolderList";
@@ -14,7 +15,6 @@ import { useNavigate } from "react-router-dom";
 export function FoldersPage() {
   const navigate = useNavigate();
   const credits = useUserStore((s) => s.user?.credits ?? 0);
-  const plan = useUserStore((s) => s.user?.plan ?? "free");
   const { currentFolderId, breadcrumbs, folders, setFolders, enterFolder, goToBreadcrumb, goToRoot } =
     useFolderStore();
 
@@ -63,12 +63,10 @@ export function FoldersPage() {
     <div className="stora-page">
       <div className="stora-home-header">
         <button className="stora-home-hero" onClick={handleOpenUnlimitedPlan}>
-          <div className="stora-home-hero-copy">
-            <span className="stora-home-hero-pill">{plan === "unlimited" ? "Unlimited active" : "New plan"}</span>
-            <h1 className="stora-home-hero-title">Get Unlimited Credits</h1>
-            <p className="stora-home-hero-subtitle">Unlock unlimited saving, zero credit drain, and a smoother Stora experience.</p>
-          </div>
-          <span className="stora-home-hero-action">View plan</span>
+          <span className="stora-home-hero-icon" aria-hidden="true">
+            <Infinity size={18} strokeWidth={2.2} />
+          </span>
+          <span className="stora-home-hero-title">Get Unlimited Credits</span>
         </button>
         <CreditsBadge credits={credits} />
       </div>
@@ -111,57 +109,33 @@ export function FoldersPage() {
         }
         .stora-home-hero {
           flex: 1;
-          display: flex;
+          display: inline-flex;
           align-items: center;
-          justify-content: space-between;
-          gap: var(--stora-space-3);
+          justify-content: center;
+          gap: 8px;
           background: linear-gradient(135deg, var(--tg-button-color) 0%, color-mix(in srgb, var(--tg-button-color) 70%, white 30%) 100%);
           color: var(--tg-button-text-color);
           border: none;
           border-radius: var(--stora-radius-lg);
-          padding: 14px 16px;
+          padding: 12px 14px;
           box-shadow: var(--stora-shadow-card);
           cursor: pointer;
-          text-align: left;
+          text-align: center;
+          min-height: 48px;
         }
         .stora-home-hero:disabled {
           opacity: 0.75;
           cursor: wait;
         }
-        .stora-home-hero-copy {
-          display: flex;
-          flex-direction: column;
-          gap: 4px;
-        }
-        .stora-home-hero-pill {
+        .stora-home-hero-icon {
           display: inline-flex;
-          align-self: flex-start;
-          font-size: 11px;
-          font-weight: 700;
-          letter-spacing: 0.08em;
-          text-transform: uppercase;
-          padding: 4px 8px;
-          border-radius: var(--stora-radius-pill);
-          background: rgba(255,255,255,0.22);
+          align-items: center;
+          justify-content: center;
         }
         .stora-home-hero-title {
           margin: 0;
-          font-size: 16px;
+          font-size: 15px;
           font-weight: 700;
-        }
-        .stora-home-hero-subtitle {
-          margin: 0;
-          font-size: 12px;
-          opacity: 0.92;
-          line-height: 1.4;
-        }
-        .stora-home-hero-action {
-          flex-shrink: 0;
-          font-size: 13px;
-          font-weight: 700;
-          padding: 8px 12px;
-          border-radius: var(--stora-radius-pill);
-          background: rgba(255,255,255,0.2);
         }
         .stora-new-folder-btn {
           background: none;
