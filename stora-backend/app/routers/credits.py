@@ -2,6 +2,15 @@ from fastapi import APIRouter, Depends, HTTPException
 from motor.motor_asyncio import AsyncIOMotorDatabase
 from aiogram.types import LabeledPrice
 
+
+async def is_user_subscribed_to_channel(bot_client, telegram_id: int, channel_username: str) -> bool:
+    try:
+        member = await bot_client.get_chat_member(chat_id=channel_username, user_id=telegram_id)
+    except Exception:
+        return False
+
+    return getattr(member, "status", None) in {"member", "administrator", "creator"}
+
 from app.database import get_db
 from app.utils.telegram_auth import get_current_telegram_user
 from app.crud import user_crud
@@ -45,15 +54,21 @@ async def claim_subscribe_bonus(
     db: AsyncIOMotorDatabase = Depends(get_db),
 ):
     """
-    Frontend calls this after the user taps 'Subscribe'. Backend should
-    verify membership via bot.get_chat_member before crediting — wire that
-    check in once OFFICIAL_CHANNEL_USERNAME is live.
+    Frontend calls this after the user taps 'Subscribe'. The backend must
+    verify membership in the official channel before crediting anything.
     """
     user = await user_crud.get_user(db, tg_user["id"])
     if user.get("subscribe_bonus_claimed"):
         raise HTTPException(400, "Already claimed")
 
+    channel_username = settings.OFFICIAL_CHANNEL_USERNAME
+    if not await is_user_subscribed_to_channel(bot, tg_user["id"], channel_username):
+        raise HTTPException(400, "You must join the official channel first before claiming this reward.")
+
     updated = await user_crud.adjust_credits(db, tg_user["id"], settings.SUBSCRIBE_BONUS_CREDITS)
+    if not updated:
+        raise HTTPException(400, "Could not credit subscribe bonus")
+
     await db.users.update_one({"telegram_id": tg_user["id"]}, {"$set": {"subscribe_bonus_claimed": True}})
     return {"credits": updated["credits"], "claimed": settings.SUBSCRIBE_BONUS_CREDITS}
 
