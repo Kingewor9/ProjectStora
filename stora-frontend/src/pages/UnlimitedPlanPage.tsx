@@ -85,7 +85,7 @@ export function UnlimitedPlanPage() {
         </p>
 
         <div className="stora-unlimited-price-row">
-          <span className="stora-unlimited-price">{user?.plan ? "250" : "250"}</span>
+          <span className="stora-unlimited-price">{user?.plan ? "150" : "150"}</span>
           <span className="stora-unlimited-price-star">⭐</span>
           <span className="stora-unlimited-price-period">/mo</span>
         </div>
