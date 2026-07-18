@@ -31,18 +31,24 @@ export function BottomNav() {
   return (
     <nav className="stora-bottom-nav">
       <NavLink to="/folders" className={({ isActive }) => `stora-nav-item ${isActive ? "active" : ""}`}>
-        <FoldersIcon />
-        <span>Folders</span>
+        <span className="stora-nav-pill">
+          <FoldersIcon />
+          <span>Folders</span>
+        </span>
       </NavLink>
       {isAdmin && (
         <NavLink to="/broadcast" className={({ isActive }) => `stora-nav-item ${isActive ? "active" : ""}`}>
-          <Megaphone size={20} strokeWidth={2} />
-          <span>Broadcast</span>
+          <span className="stora-nav-pill">
+            <Megaphone size={20} strokeWidth={1.8} />
+            <span>Broadcast</span>
+          </span>
         </NavLink>
       )}
       <NavLink to="/settings" className={({ isActive }) => `stora-nav-item ${isActive ? "active" : ""}`}>
-        <SettingsIcon />
-        <span>Settings</span>
+        <span className="stora-nav-pill">
+          <SettingsIcon />
+          <span>Settings</span>
+        </span>
       </NavLink>
       <style>{`
         .stora-bottom-nav {
@@ -51,7 +57,7 @@ export function BottomNav() {
           left: 50%;
           transform: translateX(-50%);
           display: flex;
-          gap: 4px;
+          gap: 2px;
           background: var(--tg-card-bg);
           border-radius: var(--stora-radius-pill);
           padding: 6px;
@@ -60,18 +66,25 @@ export function BottomNav() {
         }
         .stora-nav-item {
           display: flex;
-          align-items: center;
-          gap: 6px;
-          padding: 10px 18px;
-          border-radius: var(--stora-radius-pill);
-          color: var(--tg-hint-color);
           text-decoration: none;
-          font-size: 14px;
-          font-weight: 600;
+          color: var(--tg-hint-color);
+        }
+        .stora-nav-pill {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          gap: 2px;
+          padding: 7px 16px;
+          border-radius: var(--stora-radius-pill);
           transition: background 0.15s ease, color 0.15s ease;
+        }
+        .stora-nav-pill span {
+          font-size: 11px;
+          font-weight: 600;
           white-space: nowrap;
         }
-        .stora-nav-item.active {
+        .stora-nav-item.active .stora-nav-pill {
           background: color-mix(in srgb, var(--tg-accent-color) 15%, transparent);
           color: var(--tg-accent-color);
         }
