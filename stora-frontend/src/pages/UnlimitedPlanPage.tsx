@@ -70,7 +70,7 @@ export function UnlimitedPlanPage() {
 
         <div className="stora-unlimited-footer">
           <div>
-            <div className="stora-unlimited-price">250 Stars</div>
+            <div className="stora-unlimited-price">150 Stars</div>
             <div className="stora-unlimited-meta">per month • billed every 30 days</div>
           </div>
           <Button onClick={handleCheckout} disabled={isSubmitting}>
