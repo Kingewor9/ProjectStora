@@ -1,4 +1,5 @@
 import { useNavigate } from "react-router-dom";
+import { ChevronRight, Send, Globe } from "lucide-react";
 import { useUserStore } from "@/store/userStore";
 import { useState } from "react";
 
@@ -80,14 +81,27 @@ export function SettingsPage() {
       <div className="stora-settings-section">
         <button className="stora-settings-row stora-settings-link" onClick={() => navigate("/credits")}>
           <span>Stora Credits</span>
-          <span className="stora-settings-value">{user?.credits ?? 0} credits ›</span>
+          <span className="stora-settings-value">
+            {user?.credits ?? 0} credits
+            <ChevronRight size={16} strokeWidth={2.2} />
+          </span>
         </button>
+        {user?.plan !== "unlimited" && (
+          <button className="stora-settings-row stora-settings-link" onClick={() => navigate("/unlimited")}>
+            <span>Go Unlimited</span>
+            <span className="stora-settings-value">
+              <ChevronRight size={16} strokeWidth={2.2} />
+            </span>
+          </button>
+        )}
         <button
           className="stora-settings-row stora-settings-link"
           onClick={() => openLink(`https://t.me/${SUPPORT_HANDLE}`)}
         >
           <span>Support</span>
-          <span className="stora-settings-value">›</span>
+          <span className="stora-settings-value">
+            <ChevronRight size={16} strokeWidth={2.2} />
+          </span>
         </button>
       </div>
 
@@ -99,22 +113,19 @@ export function SettingsPage() {
 
       <div className="stora-settings-footer">
         <button onClick={() => openLink(TELEGRAM_URL)} aria-label="Telegram">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-            <path d="M21.8 3.6L2.7 11c-1 .4-1 1.7.1 2l4.7 1.5 1.8 5.7c.2.7 1.1.9 1.6.3l2.6-2.9 4.9 3.6c.8.6 1.9.1 2.1-.9l3.1-14.7c.2-1-.8-1.8-1.8-1z" />
-          </svg>
+          <Send size={19} strokeWidth={1.9} />
         </button>
         <button onClick={() => openLink(WEB_URL)} aria-label="Website">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
-            <circle cx="12" cy="12" r="9" />
-            <path d="M3 12h18M12 3a15 15 0 010 18M12 3a15 15 0 000 18" />
-          </svg>
+          <Globe size={19} strokeWidth={1.8} />
         </button>
         <button onClick={() => openLink(X_URL)} aria-label="X">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor">
             <path d="M18.9 2H22l-7.6 8.7L23.3 22h-7l-5.5-7.2L4.5 22H1.4l8.1-9.3L1 2h7.2l5 6.6L18.9 2zm-1.2 18h1.7L7.4 4H5.5l12.2 16z" />
           </svg>
         </button>
       </div>
+
+      <p className="stora-settings-version">Stora v1.0.0</p>
 
       <style>{`
         .stora-settings-profile {
@@ -196,6 +207,9 @@ export function SettingsPage() {
           font-size: 15px;
         }
         .stora-settings-value {
+          display: inline-flex;
+          align-items: center;
+          gap: 4px;
           color: var(--tg-hint-color);
           font-size: 14px;
         }
@@ -220,6 +234,13 @@ export function SettingsPage() {
           border: none;
           color: var(--tg-hint-color);
           cursor: pointer;
+        }
+        .stora-settings-version {
+          text-align: center;
+          font-size: 12px;
+          color: var(--tg-hint-color);
+          opacity: 0.6;
+          margin-top: var(--stora-space-3);
         }
       `}</style>
     </div>
