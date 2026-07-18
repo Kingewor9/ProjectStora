@@ -9,6 +9,7 @@ import { CreditsPage } from "@/pages/CreditsPage";
 import { SettingsPage } from "@/pages/SettingsPage";
 import { UnlimitedPlanPage } from "@/pages/UnlimitedPlanPage";
 import { SharedFolderPage } from "@/pages/SharedFolderPage";
+import { BroadcastPage } from "@/pages/BroadcastPage";
 
 function AppShell() {
   const { user, isLoading } = useOnboardingCheck();
@@ -31,6 +32,7 @@ function AppShell() {
         <Route path="/credits" element={<CreditsPage />} />
         <Route path="/unlimited" element={<UnlimitedPlanPage />} />
         <Route path="/shared/:token" element={<SharedFolderPage />} />
+        <Route path="/broadcast" element={<BroadcastPage />} />
         <Route path="/settings" element={<SettingsPage />} />
         <Route path="*" element={<Navigate to="/folders" replace />} />
       </Routes>

@@ -12,6 +12,7 @@ export interface StoraUser {
   last_daily_claim: string | null;        // ISO datetime string (UTC), null if never claimed
   subscribe_bonus_claimed: boolean;
   redirect_shared_token?: string | null;  // present only right after onboarding/configure, one-shot
+  is_admin: boolean;
 }
 
 export interface OnboardingRequest {

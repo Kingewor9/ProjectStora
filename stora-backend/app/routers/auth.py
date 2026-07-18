@@ -30,6 +30,7 @@ def _to_user_out(user_doc: dict, redirect_shared_token: str | None = None) -> Us
         last_daily_claim=user_doc.get("last_daily_claim"),
         subscribe_bonus_claimed=user_doc.get("subscribe_bonus_claimed", False),
         redirect_shared_token=redirect_shared_token,
+        is_admin=bool(settings.ADMIN_TELEGRAM_ID) and user_doc["telegram_id"] == settings.ADMIN_TELEGRAM_ID,
     )
 
 

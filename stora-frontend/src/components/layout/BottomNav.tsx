@@ -1,4 +1,6 @@
 import { NavLink } from "react-router-dom";
+import { Megaphone } from "lucide-react";
+import { useUserStore } from "@/store/userStore";
 
 const FoldersIcon = () => (
   <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
@@ -24,12 +26,20 @@ const SettingsIcon = () => (
 );
 
 export function BottomNav() {
+  const isAdmin = useUserStore((s) => s.user?.is_admin ?? false);
+
   return (
     <nav className="stora-bottom-nav">
       <NavLink to="/folders" className={({ isActive }) => `stora-nav-item ${isActive ? "active" : ""}`}>
         <FoldersIcon />
         <span>Folders</span>
       </NavLink>
+      {isAdmin && (
+        <NavLink to="/broadcast" className={({ isActive }) => `stora-nav-item ${isActive ? "active" : ""}`}>
+          <Megaphone size={20} strokeWidth={2} />
+          <span>Broadcast</span>
+        </NavLink>
+      )}
       <NavLink to="/settings" className={({ isActive }) => `stora-nav-item ${isActive ? "active" : ""}`}>
         <SettingsIcon />
         <span>Settings</span>
@@ -59,6 +69,7 @@ export function BottomNav() {
           font-size: 14px;
           font-weight: 600;
           transition: background 0.15s ease, color 0.15s ease;
+          white-space: nowrap;
         }
         .stora-nav-item.active {
           background: color-mix(in srgb, var(--tg-accent-color) 15%, transparent);

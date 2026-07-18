@@ -53,6 +53,7 @@ class UserOut(BaseModel):
     # Set only on the onboarding/configure response, when this user had a
     # shared-folder invite waiting — tells the frontend where to redirect.
     redirect_shared_token: Optional[str] = None
+    is_admin: bool = False
 
 
 class OnboardingRequest(BaseModel):

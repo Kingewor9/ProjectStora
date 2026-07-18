@@ -11,7 +11,7 @@ import hmac
 import json
 from urllib.parse import parse_qsl
 
-from fastapi import Header, HTTPException, status
+from fastapi import Depends, Header, HTTPException, status
 
 from app.config import settings
 
@@ -54,3 +54,14 @@ async def get_current_telegram_user(authorization: str = Header(...)) -> dict:
         return validate_init_data(init_data)
     except ValueError as e:
         raise HTTPException(status.HTTP_401_UNAUTHORIZED, str(e))
+
+
+async def require_admin(tg_user: dict = Depends(get_current_telegram_user)) -> dict:
+    """
+    Guards admin-only endpoints. Never trust the frontend hiding the UI —
+    this is the actual enforcement, checked against the validated initData
+    identity, not anything the client claims about itself.
+    """
+    if not settings.ADMIN_TELEGRAM_ID or tg_user["id"] != settings.ADMIN_TELEGRAM_ID:
+        raise HTTPException(status.HTTP_403_FORBIDDEN, "Admin access only")
+    return tg_user
