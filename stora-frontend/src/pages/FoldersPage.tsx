@@ -124,23 +124,31 @@ export function FoldersPage() {
           align-items: flex-start;
           justify-content: space-between;
           gap: var(--stora-space-3);
-          margin-bottom: var(--stora-space-4);
+          margin-bottom: var(--stora-space-5);
         }
         .stora-home-hero {
           flex: 1;
           display: inline-flex;
           align-items: center;
           justify-content: center;
-          gap: 8px;
-          background: linear-gradient(135deg, var(--tg-button-color) 0%, color-mix(in srgb, var(--tg-button-color) 70%, white 30%) 100%);
-          color: var(--tg-button-text-color);
-          border: none;
-          border-radius: var(--stora-radius-lg);
-          padding: 12px 14px;
-          box-shadow: var(--stora-shadow-card);
+          gap: 12px;
+          background: linear-gradient(135deg, color-mix(in srgb, var(--tg-button-color) 80%, black), var(--tg-button-color));
+          color: #04101E; /* Dark contrast */
+          border: 1px solid rgba(77, 248, 255, 0.4);
+          border-radius: var(--stora-radius-pill);
+          padding: 14px 20px;
+          box-shadow: 0 4px 24px rgba(77, 248, 255, 0.3);
           cursor: pointer;
           text-align: center;
-          min-height: 48px;
+          min-height: 54px;
+          transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .stora-home-hero:hover {
+          box-shadow: 0 4px 32px rgba(77, 248, 255, 0.5);
+          transform: translateY(-2px);
+        }
+        .stora-home-hero:active {
+          transform: scale(0.97);
         }
         .stora-home-hero:disabled {
           opacity: 0.75;
@@ -150,22 +158,31 @@ export function FoldersPage() {
           display: inline-flex;
           align-items: center;
           justify-content: center;
+          animation: pulse-glow 3s infinite ease-in-out;
         }
         .stora-home-hero-title {
           margin: 0;
-          font-size: 15px;
-          font-weight: 700;
+          font-size: 16px;
+          font-weight: 800;
+          letter-spacing: -0.02em;
+          text-transform: uppercase;
         }
         .stora-new-folder-btn {
-          background: none;
-          border: none;
-          color: var(--tg-link-color);
+          background: color-mix(in srgb, var(--tg-accent-color) 15%, transparent);
+          border: 1px solid rgba(77, 248, 255, 0.2);
+          border-radius: var(--stora-radius-pill);
+          color: var(--tg-accent-color);
+          padding: 6px 14px;
           font-size: 14px;
-          font-weight: 600;
+          font-weight: 700;
           cursor: pointer;
+          transition: all 0.2s;
+        }
+        .stora-new-folder-btn:hover {
+          background: color-mix(in srgb, var(--tg-accent-color) 25%, transparent);
         }
         .stora-folders-search {
-          margin-bottom: var(--stora-space-4);
+          margin-bottom: var(--stora-space-5);
         }
         .stora-view-files-btn {
           display: flex;
@@ -173,31 +190,44 @@ export function FoldersPage() {
           justify-content: space-between;
           width: 100%;
           background: var(--tg-card-bg);
-          border: none;
+          backdrop-filter: blur(var(--tg-glass-blur));
+          -webkit-backdrop-filter: blur(var(--tg-glass-blur));
+          border: 1px solid var(--tg-glass-border);
           border-radius: var(--stora-radius-md);
-          padding: 14px;
-          box-shadow: var(--stora-shadow-card);
+          padding: 16px 20px;
+          box-shadow: var(--tg-glass-shadow);
           color: var(--tg-link-color);
-          font-size: 14px;
-          font-weight: 600;
+          font-size: 15px;
+          font-weight: 700;
           margin-bottom: var(--stora-space-4);
           cursor: pointer;
+          transition: transform 0.2s;
+        }
+        .stora-view-files-btn:active {
+          transform: scale(0.98);
         }
         .stora-share-folder-btn {
           display: flex;
           align-items: center;
-          gap: 8px;
+          justify-content: center;
+          gap: 12px;
           width: 100%;
           background: var(--tg-card-bg);
-          border: none;
+          backdrop-filter: blur(var(--tg-glass-blur));
+          -webkit-backdrop-filter: blur(var(--tg-glass-blur));
+          border: 1px solid var(--tg-glass-border);
           border-radius: var(--stora-radius-md);
-          padding: 14px;
-          box-shadow: var(--stora-shadow-card);
+          padding: 16px 20px;
+          box-shadow: var(--tg-glass-shadow);
           color: var(--tg-text-color);
-          font-size: 14px;
-          font-weight: 600;
-          margin-bottom: var(--stora-space-4);
+          font-size: 15px;
+          font-weight: 700;
+          margin-bottom: var(--stora-space-5);
           cursor: pointer;
+          transition: transform 0.2s;
+        }
+        .stora-share-folder-btn:active {
+          transform: scale(0.98);
         }
       `}</style>
     </div>

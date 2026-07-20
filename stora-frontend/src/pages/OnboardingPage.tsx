@@ -73,7 +73,8 @@ export function OnboardingPage() {
 
       <style>{`
         .stora-onboarding-intro {
-          font-size: 14px;
+          font-size: 15px;
+          font-weight: 400;
           color: var(--tg-hint-color);
           line-height: 1.5;
           margin-bottom: var(--stora-space-5);
@@ -81,51 +82,64 @@ export function OnboardingPage() {
         .stora-onboarding-steps {
           list-style: none;
           padding: 0;
-          margin: 0 0 var(--stora-space-5);
+          margin: 0 0 var(--stora-space-6);
           display: flex;
           flex-direction: column;
-          gap: var(--stora-space-3);
+          gap: var(--stora-space-4);
         }
         .stora-onboarding-steps li {
           display: flex;
           align-items: flex-start;
           gap: var(--stora-space-3);
           background: var(--tg-card-bg);
+          backdrop-filter: blur(var(--tg-glass-blur));
+          -webkit-backdrop-filter: blur(var(--tg-glass-blur));
+          border: 1px solid var(--tg-glass-border);
           border-radius: var(--stora-radius-md);
-          padding: 14px;
-          box-shadow: var(--stora-shadow-card);
-          font-size: 14px;
+          padding: 16px;
+          box-shadow: var(--tg-glass-shadow);
+          font-size: 15px;
+          font-weight: 500;
           line-height: 1.4;
         }
         .stora-step-num {
           display: flex;
           align-items: center;
           justify-content: center;
-          width: 24px;
-          height: 24px;
+          width: 28px;
+          height: 28px;
           border-radius: 50%;
-          background: var(--tg-accent-color);
-          color: #fff;
-          font-size: 12px;
-          font-weight: 700;
+          background: color-mix(in srgb, var(--tg-accent-color) 15%, transparent);
+          border: 1px solid rgba(77, 248, 255, 0.2);
+          color: var(--tg-accent-color);
+          font-size: 13px;
+          font-weight: 800;
           flex-shrink: 0;
         }
         .stora-onboarding-input {
           width: 100%;
-          background: var(--tg-card-bg);
-          border: none;
+          background: rgba(0,0,0,0.2);
+          backdrop-filter: blur(12px);
+          -webkit-backdrop-filter: blur(12px);
+          border: 1px solid var(--tg-glass-border);
           border-radius: var(--stora-radius-sm);
-          padding: 14px;
-          font-size: 15px;
+          padding: 16px;
+          font-size: 16px;
           color: var(--tg-text-color);
-          margin-bottom: var(--stora-space-3);
-          box-shadow: var(--stora-shadow-card);
+          margin-bottom: var(--stora-space-4);
+          box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
           outline: none;
+          transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        .stora-onboarding-input:focus {
+          border-color: var(--tg-accent-color);
+          box-shadow: 0 0 16px rgba(77, 248, 255, 0.2), inset 0 2px 4px rgba(0, 0, 0, 0.1);
         }
         .stora-onboarding-error {
-          font-size: 13px;
+          font-size: 14px;
           color: var(--tg-destructive-color);
-          margin: 0 0 var(--stora-space-3);
+          margin: 0 0 var(--stora-space-4);
+          font-weight: 500;
         }
       `}</style>
     </div>

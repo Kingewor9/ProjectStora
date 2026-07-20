@@ -159,33 +159,40 @@ export function BroadcastPage() {
           margin: -8px 0 var(--stora-space-4);
         }
         .stora-broadcast-success {
-          font-size: 13px;
+          font-size: 14px;
+          font-weight: 500;
           color: var(--tg-accent-color);
-          background: color-mix(in srgb, var(--tg-accent-color) 10%, transparent);
+          background: color-mix(in srgb, var(--tg-accent-color) 15%, transparent);
+          border: 1px solid rgba(77, 248, 255, 0.2);
           border-radius: var(--stora-radius-sm);
-          padding: 10px 14px;
+          padding: 12px 16px;
           margin: 0 0 var(--stora-space-3);
           line-height: 1.4;
+          box-shadow: 0 0 12px rgba(77, 248, 255, 0.1);
         }
         .stora-broadcast-error {
           font-size: 13px;
+          font-weight: 500;
           color: var(--tg-destructive-color);
           margin: 0 0 var(--stora-space-3);
         }
         .stora-broadcast-card {
           background: var(--tg-card-bg);
-          border-radius: var(--stora-radius-lg);
-          padding: var(--stora-space-4);
-          box-shadow: var(--stora-shadow-card);
+          backdrop-filter: blur(var(--tg-glass-blur));
+          -webkit-backdrop-filter: blur(var(--tg-glass-blur));
+          border: 1px solid var(--tg-glass-border);
+          border-radius: var(--stora-radius-xl);
+          padding: var(--stora-space-5);
+          box-shadow: var(--tg-glass-shadow);
           margin-bottom: var(--stora-space-4);
           display: flex;
           flex-direction: column;
         }
         .stora-broadcast-label {
-          font-size: 13px;
+          font-size: 14px;
           font-weight: 600;
           color: var(--tg-text-color);
-          margin: var(--stora-space-3) 0 6px;
+          margin: var(--stora-space-4) 0 8px;
         }
         .stora-broadcast-label:first-child {
           margin-top: 0;
@@ -197,26 +204,33 @@ export function BroadcastPage() {
         .stora-broadcast-textarea,
         .stora-broadcast-input {
           width: 100%;
-          background: var(--tg-secondary-bg-color);
-          border: none;
+          background: rgba(0,0,0,0.2);
+          border: 1px solid var(--tg-glass-border);
           border-radius: var(--stora-radius-sm);
-          padding: 12px 14px;
-          font-size: 14px;
+          padding: 14px 16px;
+          font-size: 15px;
           color: var(--tg-text-color);
           outline: none;
           font-family: inherit;
           resize: vertical;
+          transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        .stora-broadcast-textarea:focus,
+        .stora-broadcast-input:focus {
+          border-color: var(--tg-accent-color);
+          box-shadow: inset 0 2px 4px rgba(0,0,0,0.1), 0 0 12px rgba(77, 248, 255, 0.2);
         }
         .stora-broadcast-actions {
           display: flex;
           flex-direction: column;
-          gap: var(--stora-space-2);
+          gap: var(--stora-space-3);
         }
         .stora-broadcast-confirm-copy {
-          font-size: 14px;
+          font-size: 15px;
+          font-weight: 400;
           color: var(--tg-hint-color);
           line-height: 1.5;
-          margin: 0 0 var(--stora-space-4);
+          margin: 0 0 var(--stora-space-5);
         }
         .stora-broadcast-confirm-cancel {
           display: block;
@@ -224,10 +238,10 @@ export function BroadcastPage() {
           background: none;
           border: none;
           color: var(--tg-hint-color);
-          font-size: 14px;
+          font-size: 15px;
           font-weight: 600;
           text-align: center;
-          padding: var(--stora-space-3) 0 0;
+          padding: var(--stora-space-4) 0 0;
           cursor: pointer;
         }
       `}</style>

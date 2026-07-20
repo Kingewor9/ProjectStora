@@ -28,26 +28,30 @@ export function TaskCard({ icon, iconBg, title, subtitle, reward, children }: Ta
             <style>{`
         .stora-task-card {
           background: var(--tg-card-bg);
-          border-radius: var(--stora-radius-lg);
+          backdrop-filter: blur(var(--tg-glass-blur));
+          -webkit-backdrop-filter: blur(var(--tg-glass-blur));
+          border: 1px solid var(--tg-glass-border);
+          border-radius: var(--stora-radius-xl);
           padding: var(--stora-space-4);
-          box-shadow: var(--stora-shadow-card);
-          margin-bottom: var(--stora-space-3);
+          box-shadow: var(--tg-glass-shadow);
+          margin-bottom: var(--stora-space-4);
         }
         .stora-task-header {
           display: flex;
           align-items: flex-start;
           gap: var(--stora-space-3);
-          margin-bottom: var(--stora-space-3);
+          margin-bottom: var(--stora-space-4);
         }
         .stora-task-icon {
           display: flex;
           align-items: center;
           justify-content: center;
-          width: 44px;
-          height: 44px;
-          border-radius: var(--stora-radius-sm);
-          background: color-mix(in srgb, var(--tg-accent-color) 12%, transparent);
-          font-size: 20px;
+          width: 48px;
+          height: 48px;
+          border-radius: var(--stora-radius-md);
+          background: color-mix(in srgb, var(--tg-accent-color) 15%, transparent);
+          box-shadow: inset 0 0 12px rgba(77, 248, 255, 0.1);
+          font-size: 22px;
           flex-shrink: 0;
         }
         .stora-task-copy {
@@ -55,31 +59,33 @@ export function TaskCard({ icon, iconBg, title, subtitle, reward, children }: Ta
           display: flex;
           flex-direction: column;
           min-width: 0;
+          padding-top: 2px;
         }
         .stora-task-title {
-          font-size: 15px;
+          font-size: 16px;
           font-weight: 700;
           color: var(--tg-text-color);
         }
         .stora-task-subtitle {
-          font-size: 13px;
+          font-size: 14px;
           color: var(--tg-hint-color);
           line-height: 1.4;
-          margin-top: 2px;
+          margin-top: 4px;
         }
         .stora-task-reward {
           display: flex;
           align-items: center;
-          gap: 3px;
-          font-size: 15px;
-          font-weight: 700;
-          color: var(--tg-text-color);
+          gap: 4px;
+          font-size: 16px;
+          font-weight: 800;
+          color: var(--tg-accent-color);
           flex-shrink: 0;
           white-space: nowrap;
+          padding-top: 2px;
         }
         .stora-task-actions {
           display: flex;
-          gap: var(--stora-space-2);
+          gap: var(--stora-space-3);
         }
         .stora-task-actions > * {
           flex: 1;

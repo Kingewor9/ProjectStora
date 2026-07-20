@@ -1,29 +1,30 @@
 /*
-  Telegram injects theme colors as CSS vars on <html> via the WebApp SDK
-  (see useTelegramTheme hook). These are the fallbacks — tuned to match
-  the reference UI: white cards floating on a soft light-gray canvas,
-  blue accent, pill-shaped nav.
+  Cyber-Glass & Ethereal Cloud Theme for Stora
 */
 
 :root {
-  --tg-bg-color: #f2f2f7;
-  --tg-secondary-bg-color: #f2f2f7;
-  --tg-card-bg: #ffffff;
-  --tg-text-color: #0d0d0f;
-  --tg-hint-color: #8a8a8e;
-  --tg-link-color: #3390ec;
-  --tg-button-color: #3390ec;
+  /* LIGHT: Glacial, frosty white aesthetic */
+  --tg-bg-color: #F4F7F6;
+  --tg-secondary-bg-color: #E2E8F0;
+  --tg-card-bg: rgba(255, 255, 255, 0.7);
+  --tg-text-color: #0b1120;
+  --tg-hint-color: #64748b;
+  --tg-link-color: #0ea5e9;
+  --tg-button-color: #0ea5e9;
   --tg-button-text-color: #ffffff;
-  --tg-accent-color: #3390ec;
-  --tg-destructive-color: #e53935;
+  --tg-accent-color: #0ea5e9;
+  --tg-destructive-color: #ef4444;
 
-  --stora-radius-lg: 20px;
-  --stora-radius-md: 14px;
-  --stora-radius-sm: 10px;
+  --tg-glass-border: rgba(0, 0, 0, 0.05);
+  --tg-glass-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.05);
+  --tg-glass-blur: 24px;
+  
+  --stora-radius-lg: 24px;
+  --stora-radius-md: 16px;
+  --stora-radius-sm: 12px;
   --stora-radius-pill: 999px;
-  --stora-radius-xl: 28px;
+  --stora-radius-xl: 32px;
 
-  --stora-shadow-card: 0 1px 2px rgba(0, 0, 0, 0.04);
   --stora-space-1: 4px;
   --stora-space-2: 8px;
   --stora-space-3: 12px;
@@ -32,18 +33,26 @@
   --stora-space-6: 32px;
 }
 
-/* Telegram's dark theme flips these automatically via useTelegramTheme,
-   but we keep sane defaults here in case the SDK hasn't hydrated yet. */
 @media (prefers-color-scheme: dark) {
   :root {
-    --tg-bg-color: #000000;
-    --tg-secondary-bg-color: #000000;
-    --tg-card-bg: #1c1c1e;
-    --tg-text-color: #ffffff;
-    --tg-hint-color: #8e8e93;
-    --tg-link-color: #3390ec;
-    --tg-button-color: #3390ec;
-    --tg-button-text-color: #ffffff;
-    --tg-accent-color: #3390ec;
+    /* DARK: Deep void with neon accents (Primary focus) */
+    --tg-bg-color: #05060A;
+    --tg-secondary-bg-color: #0A0C13;
+    
+    /* Ethereal dark glass for cards */
+    --tg-card-bg: rgba(15, 18, 28, 0.5);
+    
+    --tg-text-color: #F8FAFC;
+    --tg-hint-color: #94A3B8;
+    
+    /* Cyan electric neon */
+    --tg-link-color: #4DF8FF;
+    --tg-button-color: #4DF8FF;
+    --tg-button-text-color: #04101E; /* deep contrast for high legibility */
+    --tg-accent-color: #4DF8FF;
+    --tg-destructive-color: #F43F5E;
+
+    --tg-glass-border: rgba(77, 248, 255, 0.1);
+    --tg-glass-shadow: 0 8px 32px 0 rgba(77, 248, 255, 0.05);
   }
 }

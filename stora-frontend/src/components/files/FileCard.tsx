@@ -75,19 +75,27 @@ export function FileCard({ file, onSend, onRename, isSending }: FileCardProps) {
           align-items: center;
           gap: var(--stora-space-3);
           background: var(--tg-card-bg);
-          border-radius: var(--stora-radius-md);
-          padding: 14px;
-          box-shadow: var(--stora-shadow-card);
+          backdrop-filter: blur(var(--tg-glass-blur));
+          -webkit-backdrop-filter: blur(var(--tg-glass-blur));
+          border: 1px solid var(--tg-glass-border);
+          border-radius: var(--stora-radius-xl);
+          padding: 16px;
+          box-shadow: var(--tg-glass-shadow);
+          transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .stora-file-card:hover {
+          transform: translateY(-2px);
         }
         .stora-file-icon {
           font-size: 20px;
-          width: 40px;
-          height: 40px;
+          width: 44px;
+          height: 44px;
           display: flex;
           align-items: center;
           justify-content: center;
           border-radius: var(--stora-radius-sm);
           background: var(--tg-secondary-bg-color);
+          box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.05);
           flex-shrink: 0;
         }
         .stora-file-info {
@@ -97,7 +105,7 @@ export function FileCard({ file, onSend, onRename, isSending }: FileCardProps) {
           min-width: 0;
         }
         .stora-file-name {
-          font-size: 15px;
+          font-size: 16px;
           font-weight: 600;
           color: var(--tg-text-color);
           white-space: nowrap;
@@ -107,46 +115,59 @@ export function FileCard({ file, onSend, onRename, isSending }: FileCardProps) {
         .stora-file-meta {
           font-size: 13px;
           color: var(--tg-hint-color);
-          text-transform: capitalize;
+          text-transform: uppercase;
+          letter-spacing: 0.05em;
+          font-weight: 500;
         }
         .stora-file-name-row {
           display: flex;
           align-items: center;
           gap: 6px;
+          margin-bottom: 2px;
         }
         .stora-file-edit-btn {
           background: none;
           border: none;
-          padding: 2px;
+          padding: 4px;
           font-size: 13px;
           cursor: pointer;
-          opacity: 0.5;
+          opacity: 0.3;
+          transition: opacity 0.2s;
+        }
+        .stora-file-edit-btn:hover {
+          opacity: 1;
         }
         .stora-file-edit-input {
-          font-size: 15px;
+          font-size: 16px;
           font-weight: 600;
-          color: var(--tg-text-color);
-          background: var(--tg-secondary-bg-color);
+          color: var(--tg-accent-color);
+          background: rgba(0,0,0,0.2);
           border: 1px solid var(--tg-accent-color);
           border-radius: var(--stora-radius-sm);
-          padding: 2px 6px;
+          padding: 4px 8px;
           width: 100%;
           outline: none;
-          margin-bottom: 2px;
+          margin-bottom: 4px;
         }
         .stora-file-send {
           background: color-mix(in srgb, var(--tg-accent-color) 12%, transparent);
           color: var(--tg-accent-color);
-          border: none;
+          border: 1px solid rgba(77, 248, 255, 0.1);
           border-radius: var(--stora-radius-pill);
-          padding: 8px 16px;
+          padding: 8px 18px;
           font-size: 13px;
           font-weight: 600;
           cursor: pointer;
           flex-shrink: 0;
+          transition: all 0.2s ease;
+        }
+        .stora-file-send:hover:not(:disabled) {
+          background: color-mix(in srgb, var(--tg-accent-color) 20%, transparent);
+          box-shadow: 0 0 12px rgba(77, 248, 255, 0.2);
         }
         .stora-file-send:disabled {
-          opacity: 0.6;
+          opacity: 0.5;
+          cursor: wait;
         }
       `}</style>
     </div>

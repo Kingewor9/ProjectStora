@@ -175,32 +175,38 @@ export function SharedFolderPage() {
           justify-content: center;
           height: 60vh;
           color: var(--tg-hint-color);
-          font-size: 15px;
+          font-size: 16px;
+          font-weight: 500;
         }
         .stora-shared-subtitle {
           font-size: 14px;
+          font-weight: 500;
           color: var(--tg-hint-color);
-          margin: -8px 0 var(--stora-space-4);
+          margin: -8px 0 var(--stora-space-5);
         }
         .stora-shared-revoked {
           font-size: 14px;
+          font-weight: 500;
           color: var(--tg-destructive-color);
         }
         .stora-shared-summary-card {
           background: var(--tg-card-bg);
-          border-radius: var(--stora-radius-lg);
-          padding: var(--stora-space-4);
-          box-shadow: var(--stora-shadow-card);
+          backdrop-filter: blur(var(--tg-glass-blur));
+          -webkit-backdrop-filter: blur(var(--tg-glass-blur));
+          border: 1px solid var(--tg-glass-border);
+          border-radius: var(--stora-radius-xl);
+          padding: var(--stora-space-5);
+          box-shadow: var(--tg-glass-shadow);
           margin-bottom: var(--stora-space-4);
         }
         .stora-shared-summary-row {
-          font-size: 14px;
-          font-weight: 600;
+          font-size: 15px;
+          font-weight: 700;
           color: var(--tg-text-color);
-          margin-bottom: 6px;
+          margin-bottom: 8px;
         }
         .stora-shared-cost-row {
-          font-size: 13px;
+          font-size: 14px;
           color: var(--tg-hint-color);
         }
         .stora-shared-unlimited {
@@ -208,41 +214,46 @@ export function SharedFolderPage() {
           align-items: center;
           gap: 6px;
           color: var(--tg-accent-color);
-          font-weight: 600;
+          font-weight: 700;
         }
         .stora-shared-insufficient {
           color: var(--tg-destructive-color);
         }
         .stora-shared-tree {
           background: var(--tg-card-bg);
-          border-radius: var(--stora-radius-lg);
-          padding: var(--stora-space-4);
-          box-shadow: var(--stora-shadow-card);
-          margin-bottom: var(--stora-space-4);
+          backdrop-filter: blur(var(--tg-glass-blur));
+          -webkit-backdrop-filter: blur(var(--tg-glass-blur));
+          border: 1px solid var(--tg-glass-border);
+          border-radius: var(--stora-radius-xl);
+          padding: var(--stora-space-5);
+          box-shadow: var(--tg-glass-shadow);
+          margin-bottom: var(--stora-space-5);
           max-height: 320px;
           overflow-y: auto;
         }
         .stora-preview-folder-row {
           display: flex;
           align-items: center;
-          gap: 8px;
-          font-size: 14px;
-          font-weight: 600;
+          gap: 10px;
+          font-size: 15px;
+          font-weight: 700;
           color: var(--tg-text-color);
-          padding: 4px 0;
+          padding: 6px 0;
         }
         .stora-preview-file-row {
           display: flex;
           align-items: center;
-          gap: 8px;
-          font-size: 13px;
+          gap: 10px;
+          font-size: 14px;
+          font-weight: 500;
           color: var(--tg-hint-color);
-          padding: 3px 0;
+          padding: 4px 0;
         }
         .stora-shared-error {
-          font-size: 13px;
+          font-size: 14px;
+          font-weight: 500;
           color: var(--tg-destructive-color);
-          margin: 0 0 var(--stora-space-3);
+          margin: 0 0 var(--stora-space-4);
           line-height: 1.4;
         }
         .stora-shared-topup-link {
@@ -251,10 +262,10 @@ export function SharedFolderPage() {
           background: none;
           border: none;
           color: var(--tg-link-color);
-          font-size: 13px;
-          font-weight: 600;
+          font-size: 14px;
+          font-weight: 700;
           text-align: center;
-          padding: var(--stora-space-3) 0 0;
+          padding: var(--stora-space-4) 0 0;
           cursor: pointer;
         }
       `}</style>

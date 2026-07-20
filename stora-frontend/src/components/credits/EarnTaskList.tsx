@@ -224,27 +224,30 @@ export function EarnTaskList() {
 
       <style>{`
         .stora-earn-error {
-          font-size: 13px;
+          font-size: 14px;
+          font-weight: 500;
           color: var(--tg-destructive-color);
-          margin: 0 0 var(--stora-space-2);
+          margin: 0 0 var(--stora-space-3);
         }
         .stora-invite-card-body {
           display: flex;
           flex-direction: column;
-          gap: var(--stora-space-2);
+          gap: var(--stora-space-3);
           width: 100%;
         }
         .stora-referral-row {
           display: flex;
           align-items: center;
           gap: var(--stora-space-2);
-          background: var(--tg-secondary-bg-color);
+          background: rgba(0,0,0,0.2);
+          border: 1px solid var(--tg-glass-border);
           border-radius: var(--stora-radius-pill);
-          padding: 10px 14px;
+          padding: 12px 16px;
         }
         .stora-referral-link {
           flex: 1;
-          font-size: 13px;
+          font-size: 14px;
+          font-weight: 500;
           color: var(--tg-hint-color);
           overflow: hidden;
           text-overflow: ellipsis;
@@ -253,39 +256,52 @@ export function EarnTaskList() {
         .stora-copy-btn {
           background: none;
           border: none;
-          color: var(--tg-link-color);
+          color: var(--tg-accent-color);
           font-size: 16px;
           cursor: pointer;
           flex-shrink: 0;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          width: 24px;
+          height: 24px;
         }
         /* countdown */
         .stora-countdown-wrap {
           display: flex;
           flex-direction: column;
           align-items: center;
-          gap: 2px;
-          padding: 10px 0;
+          gap: 4px;
+          padding: 12px 0;
           width: 100%;
+          background: rgba(0,0,0,0.1);
+          border-radius: var(--stora-radius-md);
         }
         .stora-countdown-label {
-          font-size: 11px;
+          font-size: 12px;
           color: var(--tg-hint-color);
+          font-weight: 600;
           text-transform: uppercase;
-          letter-spacing: 0.06em;
+          letter-spacing: 0.1em;
         }
         .stora-countdown {
-          font-size: 22px;
-          font-weight: 700;
+          font-size: 24px;
+          font-weight: 800;
           letter-spacing: 0.04em;
           color: var(--tg-text-color);
           font-variant-numeric: tabular-nums;
+          text-shadow: 0 0 12px rgba(77, 248, 255, 0.3);
         }
         /* subscribe claimed */
         .stora-subscribed-badge {
-          font-size: 13px;
-          color: var(--tg-hint-color);
+          font-size: 14px;
+          font-weight: 600;
+          color: var(--tg-accent-color);
+          background: color-mix(in srgb, var(--tg-accent-color) 15%, transparent);
+          border: 1px solid rgba(77, 248, 255, 0.2);
+          border-radius: var(--stora-radius-md);
           text-align: center;
-          padding: 10px 0;
+          padding: 12px;
           width: 100%;
         }
       `}</style>

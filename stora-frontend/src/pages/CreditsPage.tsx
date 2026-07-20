@@ -21,14 +21,25 @@ export function CreditsPage() {
 
       <style>{`
         .stora-back-btn {
-          background: none;
-          border: none;
+          background: color-mix(in srgb, var(--tg-card-bg) 60%, transparent);
+          backdrop-filter: blur(12px);
+          -webkit-backdrop-filter: blur(12px);
+          border: 1px solid var(--tg-glass-border);
+          border-radius: var(--stora-radius-pill);
           color: var(--tg-link-color);
-          font-size: 15px;
-          font-weight: 500;
-          padding: 0;
-          margin-bottom: var(--stora-space-2);
+          font-size: 14px;
+          font-weight: 700;
+          padding: 8px 16px;
+          margin-bottom: var(--stora-space-4);
           cursor: pointer;
+          transition: all 0.2s;
+          display: inline-flex;
+          align-items: center;
+          gap: 6px;
+        }
+        .stora-back-btn:hover {
+          background: color-mix(in srgb, var(--tg-card-bg) 100%, transparent);
+          transform: translateX(-2px);
         }
       `}</style>
     </div>

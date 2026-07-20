@@ -53,8 +53,17 @@ export default function App() {
           align-items: center;
           justify-content: center;
           height: 100vh;
-          color: var(--tg-hint-color);
-          font-size: 15px;
+          color: var(--tg-accent-color);
+          font-size: 16px;
+          font-weight: 600;
+          letter-spacing: 0.1em;
+          text-transform: uppercase;
+          animation: pulse-glow 2s infinite ease-in-out;
+        }
+
+        @keyframes pulse-glow {
+          0%, 100% { opacity: 0.5; text-shadow: 0 0 8px rgba(77, 248, 255, 0.2); }
+          50% { opacity: 1; text-shadow: 0 0 16px rgba(77, 248, 255, 0.8); }
         }
       `}</style>
     </HashRouter>

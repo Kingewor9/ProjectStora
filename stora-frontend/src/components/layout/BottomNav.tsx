@@ -53,40 +53,66 @@ export function BottomNav() {
       <style>{`
         .stora-bottom-nav {
           position: fixed;
-          bottom: 16px;
+          bottom: 24px;
           left: 50%;
           transform: translateX(-50%);
           display: flex;
-          gap: 2px;
+          gap: 6px;
           background: var(--tg-card-bg);
+          backdrop-filter: blur(var(--tg-glass-blur));
+          -webkit-backdrop-filter: blur(var(--tg-glass-blur));
+          border: 1px solid var(--tg-glass-border);
           border-radius: var(--stora-radius-pill);
-          padding: 6px;
-          box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+          padding: 8px;
+          box-shadow: var(--tg-glass-shadow);
           z-index: 50;
         }
         .stora-nav-item {
           display: flex;
           text-decoration: none;
           color: var(--tg-hint-color);
+          position: relative;
         }
         .stora-nav-pill {
           display: flex;
           flex-direction: column;
           align-items: center;
           justify-content: center;
-          gap: 2px;
-          padding: 7px 16px;
+          gap: 4px;
+          padding: 8px 24px;
           border-radius: var(--stora-radius-pill);
-          transition: background 0.15s ease, color 0.15s ease;
+          transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
         }
         .stora-nav-pill span {
-          font-size: 11px;
-          font-weight: 600;
+          font-size: 12px;
+          font-weight: 500;
           white-space: nowrap;
+          transition: transform 0.3s ease;
         }
+        
         .stora-nav-item.active .stora-nav-pill {
-          background: color-mix(in srgb, var(--tg-accent-color) 15%, transparent);
+          background: color-mix(in srgb, var(--tg-accent-color) 10%, transparent);
           color: var(--tg-accent-color);
+          box-shadow: inset 0 0 0 1px rgba(77, 248, 255, 0.1);
+        }
+        
+        /* Subtle glow dot for active element */
+        .stora-nav-item.active::after {
+          content: "";
+          position: absolute;
+          bottom: 0px;
+          left: 50%;
+          transform: translateX(-50%);
+          width: 4px;
+          height: 4px;
+          border-radius: 50%;
+          background: var(--tg-accent-color);
+          box-shadow: 0 0 8px var(--tg-accent-color);
+        }
+        
+        /* Interactive scaling */
+        .stora-nav-item:active .stora-nav-pill {
+          transform: scale(0.92);
         }
       `}</style>
     </nav>

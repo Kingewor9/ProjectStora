@@ -15,22 +15,30 @@ export function CreditsBadge({ credits }: CreditsBadgeProps) {
         .stora-credits-badge {
           display: inline-flex;
           align-items: center;
-          gap: 6px;
+          gap: 8px;
           background: var(--tg-card-bg);
-          border: none;
+          backdrop-filter: blur(var(--tg-glass-blur));
+          -webkit-backdrop-filter: blur(var(--tg-glass-blur));
+          border: 1px solid var(--tg-glass-border);
           border-radius: var(--stora-radius-pill);
-          padding: 8px 14px;
+          padding: 10px 18px;
           font-size: 14px;
-          font-weight: 600;
+          font-weight: 700;
           color: var(--tg-text-color);
-          box-shadow: var(--stora-shadow-card);
+          box-shadow: var(--tg-glass-shadow);
           cursor: pointer;
+          transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s;
+        }
+        .stora-credits-badge:active {
+          transform: scale(0.95);
         }
         .stora-credits-dot {
           width: 8px;
           height: 8px;
           border-radius: 50%;
           background: var(--tg-accent-color);
+          box-shadow: 0 0 10px var(--tg-accent-color);
+          animation: glow-pulse 2s infinite ease-in-out;
         }
       `}</style>
     </button>

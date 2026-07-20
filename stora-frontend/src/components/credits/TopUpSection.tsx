@@ -133,77 +133,93 @@ export function TopUpSection() {
       <style>{`
         .stora-topup-card {
           background: var(--tg-card-bg);
-          border-radius: var(--stora-radius-lg);
+          backdrop-filter: blur(var(--tg-glass-blur));
+          -webkit-backdrop-filter: blur(var(--tg-glass-blur));
+          border: 1px solid var(--tg-glass-border);
+          border-radius: var(--stora-radius-xl);
           padding: var(--stora-space-4);
-          box-shadow: var(--stora-shadow-card);
+          box-shadow: var(--tg-glass-shadow);
         }
         .stora-topup-error {
-          font-size: 13px;
+          font-size: 14px;
+          font-weight: 500;
           color: var(--tg-destructive-color);
           margin: 0 0 var(--stora-space-3);
         }
         .stora-topup-input-row {
           display: flex;
           align-items: center;
-          gap: var(--stora-space-2);
-          margin-bottom: var(--stora-space-3);
+          gap: var(--stora-space-3);
+          margin-bottom: var(--stora-space-4);
         }
         .stora-topup-step {
-          width: 40px;
-          height: 40px;
+          width: 44px;
+          height: 44px;
           flex-shrink: 0;
           border-radius: 50%;
-          border: none;
-          background: var(--tg-secondary-bg-color);
+          border: 1px solid var(--tg-glass-border);
+          background: color-mix(in srgb, var(--tg-card-bg) 60%, transparent);
           color: var(--tg-text-color);
-          font-size: 20px;
+          font-size: 22px;
           font-weight: 600;
           cursor: pointer;
+          transition: all 0.2s;
+        }
+        .stora-topup-step:hover:hover {
+          background: color-mix(in srgb, var(--tg-card-bg) 100%, transparent);
+          border-color: var(--tg-accent-color);
+          color: var(--tg-accent-color);
         }
         .stora-topup-input-wrap {
           flex: 1;
           display: flex;
           align-items: baseline;
           justify-content: center;
-          gap: 6px;
-          background: var(--tg-secondary-bg-color);
+          gap: 8px;
+          background: rgba(0,0,0,0.2);
+          border: 1px solid var(--tg-glass-border);
           border-radius: var(--stora-radius-md);
-          padding: 12px;
+          padding: 14px;
+          box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);
         }
         .stora-topup-input-wrap input {
           width: 100%;
-          max-width: 100px;
+          max-width: 110px;
           border: none;
           outline: none;
           background: transparent;
           text-align: right;
-          font-size: 24px;
-          font-weight: 700;
+          font-size: 28px;
+          font-weight: 800;
           color: var(--tg-text-color);
         }
         .stora-topup-input-label {
-          font-size: 14px;
+          font-size: 15px;
+          font-weight: 500;
           color: var(--tg-hint-color);
         }
         .stora-topup-quick {
           display: flex;
-          gap: var(--stora-space-2);
-          margin-bottom: var(--stora-space-4);
+          gap: var(--stora-space-3);
+          margin-bottom: var(--stora-space-5);
         }
         .stora-topup-chip {
           flex: 1;
-          padding: 8px;
+          padding: 10px;
           border-radius: var(--stora-radius-pill);
-          border: none;
-          background: var(--tg-secondary-bg-color);
+          border: 1px solid var(--tg-glass-border);
+          background: rgba(0,0,0,0.2);
           color: var(--tg-text-color);
-          font-size: 13px;
-          font-weight: 600;
+          font-size: 14px;
+          font-weight: 700;
           cursor: pointer;
+          transition: all 0.2s;
         }
         .stora-topup-chip.active {
           background: color-mix(in srgb, var(--tg-accent-color) 18%, transparent);
+          border-color: rgba(77, 248, 255, 0.4);
           color: var(--tg-accent-color);
+          box-shadow: 0 0 12px rgba(77, 248, 255, 0.2);
         }
       `}</style>
     </section>

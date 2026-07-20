@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap');
+
 * {
   box-sizing: border-box;
 }
@@ -12,29 +14,23 @@ body {
   margin: 0;
   background: var(--tg-bg-color);
   color: var(--tg-text-color);
-  font-family:
-    -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial,
-    sans-serif;
+  font-family: 'Outfit', sans-serif;
   -webkit-font-smoothing: antialiased;
-  transition:
-    background-color 0.2s ease,
-    color 0.2s ease;
+  transition: background-color 0.4s ease, color 0.4s ease;
+  overflow-x: hidden;
 }
 
-button {
-  font-family: inherit;
+button, input, textarea {
+  font-family: 'Outfit', sans-serif;
 }
 
-input {
-  font-family: inherit;
-}
-
-/* Visible keyboard focus, kept subtle so it doesn't clash with touch-first UI */
+/* Visible keyboard focus, glow on focus for inputs/buttons */
 button:focus-visible,
 input:focus-visible,
 a:focus-visible {
   outline: 2px solid var(--tg-accent-color);
   outline-offset: 2px;
+  box-shadow: 0 0 16px var(--tg-accent-color);
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -45,15 +41,19 @@ a:focus-visible {
   }
 }
 
+/* Base Page Styles */
 .stora-page {
-  min-height: 100%;
-  padding: var(--stora-space-4) var(--stora-space-4) 96px;
+  min-height: 100vh;
+  padding: var(--stora-space-4) var(--stora-space-4) 110px;
+  animation: fade-in-up 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
 .stora-page-title {
-  font-size: 28px;
+  font-size: 32px;
   font-weight: 700;
-  margin: var(--stora-space-2) 0 var(--stora-space-4);
+  margin: var(--stora-space-3) 0 var(--stora-space-5);
+  letter-spacing: -0.02em;
+  line-height: 1.1;
 }
 
 .stora-section {
@@ -61,15 +61,17 @@ a:focus-visible {
 }
 
 .stora-section-title {
-  font-size: 17px;
-  font-weight: 700;
-  margin: 0 0 4px;
+  font-size: 18px;
+  font-weight: 600;
+  margin: 0 0 8px;
+  letter-spacing: -0.01em;
 }
 
 .stora-section-subtitle {
-  font-size: 13px;
+  font-size: 14px;
   color: var(--tg-hint-color);
-  margin: 0 0 var(--stora-space-3);
+  margin: 0 0 var(--stora-space-4);
+  font-weight: 400;
 }
 
 .stora-section-header {
@@ -77,4 +79,34 @@ a:focus-visible {
   align-items: center;
   justify-content: space-between;
   margin-bottom: var(--stora-space-3);
+  padding-bottom: var(--stora-space-2);
+  border-bottom: 1px solid var(--tg-glass-border);
+}
+
+/* Utility Animations */
+@keyframes fade-in-up {
+  0% {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes glow-pulse {
+  0% { box-shadow: 0 0 0 0 rgba(77, 248, 255, 0.4); }
+  70% { box-shadow: 0 0 0 10px rgba(77, 248, 255, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(77, 248, 255, 0); }
+}
+
+/* Glass Modifiers */
+.stora-glass-card {
+  background: var(--tg-card-bg);
+  backdrop-filter: blur(var(--tg-glass-blur));
+  -webkit-backdrop-filter: blur(var(--tg-glass-blur));
+  border: 1px solid var(--tg-glass-border);
+  box-shadow: var(--tg-glass-shadow);
+  border-radius: var(--stora-radius-xl);
 }

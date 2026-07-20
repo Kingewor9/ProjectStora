@@ -121,95 +121,133 @@ export function UnlimitedPlanPage() {
 
       <style>{`
         .stora-unlimited-page {
-          min-height: 100%;
-          background: #0b0b0d;
-          color: #ffffff;
-          padding: var(--stora-space-4) var(--stora-space-4) 64px;
+          min-height: 100vh;
+          background: var(--tg-bg-color);
+          color: var(--tg-text-color);
+          padding: var(--stora-space-4) var(--stora-space-4) 110px;
+          animation: fade-in-up 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
         }
         .stora-unlimited-back {
-          background: none;
-          border: none;
-          color: #8e8e93;
-          font-size: 15px;
-          font-weight: 500;
-          padding: 0;
+          background: color-mix(in srgb, var(--tg-card-bg) 60%, transparent);
+          backdrop-filter: blur(12px);
+          -webkit-backdrop-filter: blur(12px);
+          border: 1px solid var(--tg-glass-border);
+          border-radius: var(--stora-radius-pill);
+          color: var(--tg-link-color);
+          font-size: 14px;
+          font-weight: 700;
+          padding: 8px 16px;
           margin-bottom: var(--stora-space-4);
           cursor: pointer;
+          transition: all 0.2s;
+          display: inline-flex;
+          align-items: center;
+          gap: 6px;
+        }
+        .stora-unlimited-back:hover {
+          background: color-mix(in srgb, var(--tg-card-bg) 100%, transparent);
+          transform: translateX(-2px);
         }
         .stora-unlimited-headline {
-          font-size: 30px;
+          font-size: 32px;
           font-weight: 800;
           line-height: 1.15;
-          margin: 0 0 6px;
+          margin: 0 0 8px;
+          letter-spacing: -0.02em;
         }
         .stora-unlimited-subhead {
           font-size: 16px;
-          color: #9a9aa0;
+          color: var(--tg-hint-color);
           margin: 0 0 var(--stora-space-4);
+          font-weight: 400;
         }
         .stora-unlimited-billing-pill {
           display: inline-flex;
           padding: 8px 16px;
           border-radius: var(--stora-radius-pill);
-          background: #1c1c1e;
-          color: #ffffff;
+          background: rgba(0,0,0,0.2);
+          border: 1px solid var(--tg-glass-border);
+          color: var(--tg-text-color);
           font-size: 13px;
           font-weight: 700;
           margin-bottom: var(--stora-space-4);
         }
         .stora-unlimited-card {
-          border: 1px solid #2c2c2e;
+          background: var(--tg-card-bg);
+          backdrop-filter: blur(var(--tg-glass-blur));
+          -webkit-backdrop-filter: blur(var(--tg-glass-blur));
+          border: 1px solid var(--tg-glass-border);
           border-radius: var(--stora-radius-xl);
           padding: var(--stora-space-5);
           margin-bottom: var(--stora-space-4);
+          box-shadow: var(--tg-glass-shadow);
+          position: relative;
+          overflow: hidden;
+        }
+        .stora-unlimited-card::before {
+          content: '';
+          position: absolute;
+          top: 0; left: 0; right: 0;
+          height: 100%;
+          background: linear-gradient(135deg, rgba(77, 248, 255, 0.1), transparent 50%);
+          pointer-events: none;
         }
         .stora-unlimited-card-header {
           display: flex;
           align-items: center;
-          gap: 10px;
+          gap: 12px;
           margin-bottom: var(--stora-space-3);
+          position: relative;
+          z-index: 1;
         }
         .stora-unlimited-plan-name {
-          font-size: 24px;
+          font-size: 26px;
           font-weight: 800;
         }
         .stora-unlimited-most-popular {
           font-size: 10px;
-          font-weight: 700;
-          letter-spacing: 0.04em;
-          color: #6ea8ff;
-          background: color-mix(in srgb, #6ea8ff 18%, transparent);
+          font-weight: 800;
+          letter-spacing: 0.1em;
+          color: var(--tg-accent-color);
+          background: color-mix(in srgb, var(--tg-accent-color) 18%, transparent);
           border-radius: var(--stora-radius-pill);
           padding: 4px 10px;
+          box-shadow: 0 0 12px rgba(77, 248, 255, 0.3);
         }
         .stora-unlimited-card-desc {
-          font-size: 14px;
-          color: #9a9aa0;
+          font-size: 15px;
+          color: var(--tg-hint-color);
           line-height: 1.5;
           margin: 0 0 var(--stora-space-4);
+          position: relative;
+          z-index: 1;
         }
         .stora-unlimited-price-row {
           display: flex;
           align-items: baseline;
-          gap: 4px;
+          gap: 6px;
           margin-bottom: 2px;
+          position: relative;
+          z-index: 1;
         }
         .stora-unlimited-price {
-          font-size: 40px;
+          font-size: 42px;
           font-weight: 800;
         }
         .stora-unlimited-price-star {
-          font-size: 22px;
+          font-size: 24px;
         }
         .stora-unlimited-price-period {
           font-size: 15px;
-          color: #9a9aa0;
+          color: var(--tg-hint-color);
           margin-left: 2px;
         }
         .stora-unlimited-billed-note {
           font-size: 13px;
-          color: #6e6e73;
-          margin: 0 0 var(--stora-space-4);
+          color: var(--tg-hint-color);
+          margin: 0 0 var(--stora-space-5);
+          position: relative;
+          z-index: 1;
         }
         .stora-unlimited-feature-list {
           list-style: none;
@@ -217,62 +255,82 @@ export function UnlimitedPlanPage() {
           padding: 0;
           display: flex;
           flex-direction: column;
-          gap: 14px;
+          gap: 16px;
+          position: relative;
+          z-index: 1;
         }
         .stora-unlimited-feature-list li {
           display: flex;
           align-items: flex-start;
           gap: 12px;
-          font-size: 14px;
-          color: #e5e5e7;
+          font-size: 15px;
+          font-weight: 500;
+          color: var(--tg-text-color);
           line-height: 1.4;
         }
         .stora-unlimited-feature-list svg {
           flex-shrink: 0;
-          margin-top: 1px;
-          color: #6ea8ff;
+          margin-top: 2px;
+          color: var(--tg-accent-color);
+          filter: drop-shadow(0 0 8px rgba(77, 248, 255, 0.4));
         }
         .stora-unlimited-cta {
           display: block;
           width: 100%;
-          background: #ffffff;
-          color: #0b0b0d;
+          background: linear-gradient(135deg, var(--tg-button-color), color-mix(in srgb, var(--tg-button-color) 70%, white 30%));
+          color: var(--tg-button-text-color);
           border: none;
           border-radius: var(--stora-radius-pill);
-          padding: 16px;
+          padding: 18px;
           font-size: 16px;
           font-weight: 700;
+          letter-spacing: 0.02em;
           cursor: pointer;
           margin-bottom: var(--stora-space-3);
+          box-shadow: 0 4px 24px rgba(77, 248, 255, 0.4);
+          text-transform: uppercase;
+          transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .stora-unlimited-cta:hover:not(:disabled) {
+          box-shadow: 0 8px 32px rgba(77, 248, 255, 0.6);
+          transform: translateY(-2px);
+        }
+        .stora-unlimited-cta:active:not(:disabled) {
+          transform: scale(0.97);
         }
         .stora-unlimited-cta:disabled {
           opacity: 0.6;
+          filter: grayscale(0.5);
+          cursor: wait;
         }
         .stora-unlimited-active-state {
           display: flex;
           align-items: center;
           justify-content: center;
           gap: 8px;
-          background: #1c1c1e;
+          background: color-mix(in srgb, var(--tg-accent-color) 10%, transparent);
+          border: 1px solid rgba(77, 248, 255, 0.2);
           border-radius: var(--stora-radius-pill);
-          padding: 14px;
+          padding: 16px;
           font-size: 15px;
           font-weight: 700;
-          color: #6ea8ff;
+          color: var(--tg-accent-color);
           margin-bottom: var(--stora-space-3);
         }
         .stora-unlimited-error {
-          color: #ff6961;
-          font-size: 13px;
+          color: var(--tg-destructive-color);
+          font-size: 14px;
+          font-weight: 500;
           text-align: center;
           margin: 0 0 var(--stora-space-3);
         }
         .stora-unlimited-footnote {
           font-size: 12px;
-          color: #6e6e73;
+          color: var(--tg-hint-color);
           text-align: center;
           line-height: 1.5;
           margin: 0;
+          opacity: 0.7;
         }
       `}</style>
     </div>

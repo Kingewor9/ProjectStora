@@ -133,54 +133,80 @@ export function SettingsPage() {
           align-items: center;
           gap: var(--stora-space-3);
           background: var(--tg-card-bg);
-          border-radius: var(--stora-radius-lg);
-          padding: var(--stora-space-4);
-          box-shadow: var(--stora-shadow-card);
+          backdrop-filter: blur(var(--tg-glass-blur));
+          -webkit-backdrop-filter: blur(var(--tg-glass-blur));
+          border: 1px solid var(--tg-glass-border);
+          border-radius: var(--stora-radius-xl);
+          padding: 20px;
+          box-shadow: var(--tg-glass-shadow);
           margin-bottom: var(--stora-space-4);
+          position: relative;
+          overflow: hidden;
+        }
+        .stora-settings-profile::before {
+          content: '';
+          position: absolute;
+          top: 0; left: 0; right: 0;
+          height: 100%;
+          background: linear-gradient(135deg, rgba(77, 248, 255, 0.1), transparent 50%);
+          pointer-events: none;
         }
         .stora-settings-avatar,
         .stora-settings-avatar-placeholder {
-          width: 48px;
-          height: 48px;
+          width: 56px;
+          height: 56px;
           border-radius: 50%;
           object-fit: cover;
           flex-shrink: 0;
+          box-shadow: 0 0 0 2px rgba(77, 248, 255, 0.3), 0 4px 12px rgba(77, 248, 255, 0.1);
+          position: relative;
+          z-index: 1;
         }
         .stora-settings-avatar-placeholder {
           display: flex;
           align-items: center;
           justify-content: center;
-          background: var(--tg-accent-color);
+          background: linear-gradient(135deg, var(--tg-accent-color), color-mix(in srgb, var(--tg-accent-color) 60%, black));
           color: #fff;
-          font-weight: 700;
-          font-size: 18px;
+          font-weight: 800;
+          font-size: 24px;
         }
         .stora-settings-name {
           display: block;
-          font-size: 16px;
+          font-size: 18px;
           font-weight: 700;
+          position: relative;
+          z-index: 1;
         }
         .stora-settings-id {
           display: block;
           font-size: 13px;
           color: var(--tg-hint-color);
+          position: relative;
+          z-index: 1;
         }
         .stora-settings-plan-badge {
           display: inline-flex;
           margin-top: 8px;
-          padding: 4px 8px;
+          padding: 4px 10px;
           border-radius: var(--stora-radius-pill);
-          background: color-mix(in srgb, var(--tg-button-color) 16%, transparent);
+          background: color-mix(in srgb, var(--tg-button-color) 20%, transparent);
+          border: 1px solid rgba(77, 248, 255, 0.2);
           color: var(--tg-button-color);
-          font-size: 12px;
-          font-weight: 700;
+          font-size: 11px;
+          font-weight: 800;
           text-transform: uppercase;
-          letter-spacing: 0.06em;
+          letter-spacing: 0.1em;
+          position: relative;
+          z-index: 1;
         }
         .stora-settings-section {
           background: var(--tg-card-bg);
-          border-radius: var(--stora-radius-lg);
-          box-shadow: var(--stora-shadow-card);
+          backdrop-filter: blur(var(--tg-glass-blur));
+          -webkit-backdrop-filter: blur(var(--tg-glass-blur));
+          border: 1px solid var(--tg-glass-border);
+          border-radius: var(--stora-radius-xl);
+          box-shadow: var(--tg-glass-shadow);
           margin-bottom: var(--stora-space-4);
           overflow: hidden;
         }
@@ -191,25 +217,32 @@ export function SettingsPage() {
           width: 100%;
           background: none;
           border: none;
-          padding: 16px;
-          font-size: 15px;
+          padding: 16px 20px;
+          font-size: 16px;
+          font-weight: 500;
           color: var(--tg-text-color);
           text-align: left;
           cursor: pointer;
+          transition: background-color 0.2s;
+        }
+        .stora-settings-link:hover, .stora-settings-logout:hover {
+          background-color: rgba(255,255,255,0.03);
         }
         .stora-settings-row + .stora-settings-row {
-          border-top: 1px solid var(--tg-secondary-bg-color);
+          border-top: 1px solid rgba(255,255,255,0.05);
         }
         .stora-settings-row select {
           background: none;
           border: none;
-          color: var(--tg-hint-color);
+          color: var(--tg-accent-color);
           font-size: 15px;
+          font-weight: 600;
+          outline: none;
         }
         .stora-settings-value {
           display: inline-flex;
           align-items: center;
-          gap: 4px;
+          gap: 6px;
           color: var(--tg-hint-color);
           font-size: 14px;
         }
@@ -220,27 +253,37 @@ export function SettingsPage() {
         .stora-settings-footer {
           display: flex;
           justify-content: center;
-          gap: var(--stora-space-3);
-          margin-top: var(--stora-space-5);
+          gap: var(--stora-space-4);
+          margin-top: var(--stora-space-6);
         }
         .stora-settings-footer button {
           display: flex;
           align-items: center;
           justify-content: center;
-          width: 40px;
-          height: 40px;
+          width: 44px;
+          height: 44px;
           border-radius: 50%;
           background: var(--tg-card-bg);
-          border: none;
+          backdrop-filter: blur(var(--tg-glass-blur));
+          border: 1px solid var(--tg-glass-border);
           color: var(--tg-hint-color);
           cursor: pointer;
+          transition: all 0.2s;
+        }
+        .stora-settings-footer button:hover {
+          border-color: var(--tg-accent-color);
+          color: var(--tg-accent-color);
+          transform: translateY(-2px);
+          box-shadow: 0 4px 12px rgba(77, 248, 255, 0.2);
         }
         .stora-settings-version {
           text-align: center;
           font-size: 12px;
           color: var(--tg-hint-color);
-          opacity: 0.6;
-          margin-top: var(--stora-space-3);
+          opacity: 0.5;
+          margin-top: var(--stora-space-4);
+          letter-spacing: 0.1em;
+          text-transform: uppercase;
         }
       `}</style>
     </div>

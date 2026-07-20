@@ -43,22 +43,30 @@ export function FolderCard({ folder, onClick }: FolderCardProps) {
           gap: var(--stora-space-3);
           width: 100%;
           background: var(--tg-card-bg);
-          border: none;
-          border-radius: var(--stora-radius-md);
-          padding: 14px;
-          box-shadow: var(--stora-shadow-card);
+          backdrop-filter: blur(var(--tg-glass-blur));
+          -webkit-backdrop-filter: blur(var(--tg-glass-blur));
+          border: 1px solid var(--tg-glass-border);
+          border-radius: var(--stora-radius-xl);
+          padding: 16px;
+          box-shadow: var(--tg-glass-shadow);
           cursor: pointer;
           text-align: left;
+          transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s;
+        }
+        .stora-folder-card:active {
+          transform: scale(0.96);
+          box-shadow: 0 4px 16px 0 rgba(31, 38, 135, 0.1);
         }
         .stora-folder-icon {
           display: flex;
           align-items: center;
           justify-content: center;
-          width: 40px;
-          height: 40px;
+          width: 44px;
+          height: 44px;
           border-radius: var(--stora-radius-sm);
-          background: color-mix(in srgb, var(--tg-accent-color) 10%, transparent);
+          background: color-mix(in srgb, var(--tg-accent-color) 12%, transparent);
           flex-shrink: 0;
+          box-shadow: inset 0 0 0 1px rgba(77, 248, 255, 0.1);
         }
         .stora-folder-info {
           flex: 1;
@@ -67,7 +75,7 @@ export function FolderCard({ folder, onClick }: FolderCardProps) {
           min-width: 0;
         }
         .stora-folder-name {
-          font-size: 15px;
+          font-size: 16px;
           font-weight: 600;
           color: var(--tg-text-color);
           white-space: nowrap;
@@ -75,18 +83,20 @@ export function FolderCard({ folder, onClick }: FolderCardProps) {
           text-overflow: ellipsis;
           display: inline-flex;
           align-items: center;
-          gap: 6px;
+          gap: 8px;
+          margin-bottom: 2px;
         }
         .stora-shared-badge {
           flex-shrink: 0;
-          font-size: 10px;
-          font-weight: 700;
+          font-size: 9px;
+          font-weight: 800;
           text-transform: uppercase;
-          letter-spacing: 0.03em;
+          letter-spacing: 0.1em;
           color: var(--tg-accent-color);
           background: color-mix(in srgb, var(--tg-accent-color) 14%, transparent);
           border-radius: var(--stora-radius-pill);
           padding: 2px 8px;
+          box-shadow: 0 0 8px rgba(77, 248, 255, 0.2);
         }
         .stora-folder-details {
           font-size: 13px;
