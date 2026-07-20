@@ -3,13 +3,53 @@ from motor.motor_asyncio import AsyncIOMotorDatabase
 from aiogram.types import LabeledPrice
 
 
-async def is_user_subscribed_to_channel(bot_client, telegram_id: int, channel_username: str) -> bool:
-    try:
-        member = await bot_client.get_chat_member(chat_id=channel_username, user_id=telegram_id)
-    except Exception:
-        return False
+def _build_channel_candidates(channel_username: str) -> list[str]:
+    if not channel_username:
+        return []
 
-    return getattr(member, "status", None) in {"member", "administrator", "creator"}
+    identifier = str(channel_username).strip()
+    if not identifier:
+        return []
+
+    if identifier.lstrip("-").isdigit():
+        return [identifier]
+
+    candidates: list[str] = []
+    seen: set[str] = set()
+
+    def add_candidate(value: str) -> None:
+        cleaned = value.strip()
+        if not cleaned or cleaned in seen:
+            return
+        seen.add(cleaned)
+        candidates.append(cleaned)
+
+    add_candidate(identifier)
+    if identifier.startswith("@"):
+        add_candidate(identifier[1:])
+    else:
+        add_candidate(f"@{identifier}")
+
+    base = identifier[1:] if identifier.startswith("@") else identifier
+    normalized = base.replace("_", "").replace("-", "")
+    if normalized != base:
+        add_candidate(normalized)
+        add_candidate(f"@{normalized}")
+
+    return candidates
+
+
+async def is_user_subscribed_to_channel(bot_client, telegram_id: int, channel_username: str) -> bool:
+    for candidate in _build_channel_candidates(channel_username):
+        try:
+            member = await bot_client.get_chat_member(chat_id=candidate, user_id=telegram_id)
+        except Exception:
+            continue
+
+        if getattr(member, "status", None) in {"member", "administrator", "creator"}:
+            return True
+
+    return False
 
 from app.database import get_db
 from app.utils.telegram_auth import get_current_telegram_user
