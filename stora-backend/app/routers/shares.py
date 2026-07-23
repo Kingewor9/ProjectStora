@@ -69,14 +69,22 @@ async def preview_share(
     claim_status = claim["status"] if claim else None
     claimed_root_folder_id = claim.get("root_folder_id") if claim else None
 
-    root_node, total_files, total_folders = await share_crud.build_preview_tree(
-        db, share["owner_id"], share["folder_id"], claim
-    )
+    try:
+        root_node, total_files, total_folders = await share_crud.build_preview_tree(
+            db, share["owner_id"], share["folder_id"], claim
+        )
+    except Exception as exc:
+        logger.exception("build_preview_tree failed for token=%s owner=%s: %s", token, share["owner_id"], exc)
+        raise HTTPException(500, "Could not load shared folder contents. Please try again.")
+
     if root_node is None:
+        # Folder was deleted by owner after sharing
         raise HTTPException(404, "This shared folder no longer exists.")
-        
+
+    # If the caller already has a completed claim but there are new files → delta
     if claim_status == "completed" and total_files > 0:
         claim_status = "delta"
+    # Edge-case: completed + 0 new files means fully in-sync — don't flip to delta
 
     cost_credits = total_files * settings.SAVE_FILE_COST
 

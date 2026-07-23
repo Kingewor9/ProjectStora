@@ -1,3 +1,4 @@
+import logging
 import secrets
 from datetime import datetime
 from typing import Optional
@@ -10,6 +11,8 @@ from app.models.folder import FolderCreate
 from app.models.file import FileCreate
 from app.crud import folder_crud, file_crud, user_crud
 from app.config import settings
+
+logger = logging.getLogger(__name__)
 
 
 def _oid(id_str: str):
@@ -76,7 +79,9 @@ async def _build_preview_node(db: AsyncIOMotorDatabase, owner_id: int, folder_do
     
     if claim and claim.get("status") == "completed":
         copied_file_ids = set(claim.get("copied_file_ids", []))
+        before = len(files)
         files = [f for f in files if str(f["_id"]) not in copied_file_ids]
+        logger.info("[preview] folder=%s files before=%d after=%d (delta filter)", folder_id, before, len(files))
 
     child_folders = by_parent.get(folder_id, [])
 
@@ -87,6 +92,7 @@ async def _build_preview_node(db: AsyncIOMotorDatabase, owner_id: int, folder_do
             subfolders.append(sub_node)
             
     if claim and claim.get("status") == "completed" and not files and not subfolders:
+        logger.info("[preview] folder=%s has no delta files, returning None", folder_id)
         return None
 
     return SharePreviewFolder(
