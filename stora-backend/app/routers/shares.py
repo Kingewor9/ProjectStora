@@ -65,11 +65,18 @@ async def preview_share(
     if not owner:
         raise HTTPException(404, "Share owner not found")
 
+    claim = await share_crud.get_claim(db, token, tg_user["id"])
+    claim_status = claim["status"] if claim else None
+    claimed_root_folder_id = claim.get("root_folder_id") if claim else None
+
     root_node, total_files, total_folders = await share_crud.build_preview_tree(
-        db, share["owner_id"], share["folder_id"]
+        db, share["owner_id"], share["folder_id"], claim
     )
     if root_node is None:
         raise HTTPException(404, "This shared folder no longer exists.")
+        
+    if claim_status == "completed" and total_files > 0:
+        claim_status = "delta"
 
     cost_credits = total_files * settings.SAVE_FILE_COST
 
@@ -77,10 +84,6 @@ async def preview_share(
     requester_is_unlimited = await user_crud.is_unlimited_active(requester) if requester else False
     requester_credits = requester["credits"] if requester else 0
     can_afford = requester_is_unlimited or requester_credits >= cost_credits
-
-    claim = await share_crud.get_claim(db, token, tg_user["id"])
-    claim_status = claim["status"] if claim else None
-    claimed_root_folder_id = claim.get("root_folder_id") if claim else None
 
     return SharePreview(
         token=token,

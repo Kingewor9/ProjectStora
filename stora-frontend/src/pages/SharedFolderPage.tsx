@@ -109,7 +109,8 @@ export function SharedFolderPage() {
   if (!preview) return null;
 
   const alreadyCompleted = preview.claim_status === "completed";
-  const canClaim = !alreadyCompleted && (preview.requester_is_unlimited || preview.can_afford) && !preview.revoked;
+  const isDelta = preview.claim_status === "delta";
+  const canClaim = (!alreadyCompleted || isDelta) && (preview.requester_is_unlimited || preview.can_afford) && !preview.revoked;
 
   return (
     <div className="stora-page">
@@ -122,7 +123,11 @@ export function SharedFolderPage() {
         <>
           <div className="stora-shared-summary-card">
             <div className="stora-shared-summary-row">
-              <span>{preview.total_files} files · {preview.total_folders} folders</span>
+              {isDelta ? (
+                <span>{preview.total_files} new files to sync</span>
+              ) : (
+                <span>{preview.total_files} files · {preview.total_folders} folders</span>
+              )}
             </div>
             <div className="stora-shared-cost-row">
               {preview.requester_is_unlimited ? (
@@ -131,7 +136,7 @@ export function SharedFolderPage() {
                 </span>
               ) : (
                 <span className={preview.can_afford ? "" : "stora-shared-insufficient"}>
-                  Cost to claim: <strong>{preview.cost_credits} credits</strong>
+                  Cost to {isDelta ? "sync" : "claim"}: <strong>{preview.cost_credits} credits</strong>
                   {" "}(you have {preview.requester_credits})
                 </span>
               )}
@@ -144,16 +149,18 @@ export function SharedFolderPage() {
 
           {error && <p className="stora-shared-error">{error}</p>}
 
-          {alreadyCompleted ? (
+          {alreadyCompleted && !isDelta ? (
             <Button fullWidth onClick={handleClaim}>
               Open in my Folders
             </Button>
           ) : (
             <Button fullWidth onClick={handleClaim} disabled={!canClaim || isClaiming}>
               {isClaiming
-                ? "Claiming..."
+                ? isDelta ? "Syncing..." : "Claiming..."
                 : preview.claim_status === "in_progress"
                 ? "Resume claim"
+                : isDelta
+                ? `Sync new files (${preview.cost_credits} credits)`
                 : !canClaim
                 ? "Not enough credits"
                 : `Claim (${preview.cost_credits} credits)`}

@@ -30,6 +30,15 @@ async def handle_folder_pick(callback: CallbackQuery):
         await callback.answer()
         return
 
+    import asyncio
+    from app.crud import folder_crud, sync_crud
+    
+    target_folder = await folder_crud.get_folder(db, folder_id, callback.from_user.id)
+    if target_folder and target_folder.get("is_claimed"):
+        await callback.message.edit_text("Cannot add files to a claimed folder. The owner manages its contents.")
+        await callback.answer()
+        return
+
     if user.get("plan") == "unlimited":
         updated_user = user
     else:
@@ -57,6 +66,8 @@ async def handle_folder_pick(callback: CallbackQuery):
     )
     await file_crud.create_file(db, file_create)
     await file_crud.delete_pending_upload(db, pending["_id"])
+    
+    asyncio.create_task(sync_crud.schedule_sync_notifications(db, callback.from_user.id, folder_id))
 
     if user.get("plan") == "unlimited":
         await callback.message.edit_text("Saved! Your Stora Unlimited plan covers this save.")

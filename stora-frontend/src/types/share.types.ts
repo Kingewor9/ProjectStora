@@ -18,7 +18,7 @@ export interface SharePreviewFolder {
   subfolders: SharePreviewFolder[];
 }
 
-export type ClaimStatus = "in_progress" | "completed";
+export type ClaimStatus = "in_progress" | "completed" | "delta";
 
 export interface SharePreview {
   token: string;

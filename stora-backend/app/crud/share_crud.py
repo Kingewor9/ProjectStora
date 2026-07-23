@@ -70,14 +70,24 @@ async def get_shared_folder_ids(db: AsyncIOMotorDatabase, owner_id: int, folder_
 
 # --- Preview tree building (names only, no telegram_msg_link exposed) ---
 
-async def _build_preview_node(db: AsyncIOMotorDatabase, owner_id: int, folder_doc: dict, by_parent: dict) -> SharePreviewFolder:
+async def _build_preview_node(db: AsyncIOMotorDatabase, owner_id: int, folder_doc: dict, by_parent: dict, claim: Optional[dict] = None) -> Optional[SharePreviewFolder]:
     folder_id = str(folder_doc["_id"])
     files = await file_crud.list_files_in_folder(db, folder_id, owner_id)
+    
+    if claim and claim.get("status") == "completed":
+        copied_file_ids = set(claim.get("copied_file_ids", []))
+        files = [f for f in files if str(f["_id"]) not in copied_file_ids]
+
     child_folders = by_parent.get(folder_id, [])
 
-    subfolders = [
-        await _build_preview_node(db, owner_id, child, by_parent) for child in child_folders
-    ]
+    subfolders = []
+    for child in child_folders:
+        sub_node = await _build_preview_node(db, owner_id, child, by_parent, claim)
+        if sub_node and (sub_node.files or sub_node.subfolders):
+            subfolders.append(sub_node)
+            
+    if claim and claim.get("status") == "completed" and not files and not subfolders:
+        return None
 
     return SharePreviewFolder(
         name=folder_doc["name"],
@@ -86,7 +96,7 @@ async def _build_preview_node(db: AsyncIOMotorDatabase, owner_id: int, folder_do
     )
 
 
-async def build_preview_tree(db: AsyncIOMotorDatabase, owner_id: int, root_folder_id: str):
+async def build_preview_tree(db: AsyncIOMotorDatabase, owner_id: int, root_folder_id: str, claim: Optional[dict] = None):
     """Returns (root_preview_node, total_files, total_folders) or (None, 0, 0) if folder missing."""
     subtree = await folder_crud.get_folder_subtree(db, owner_id, root_folder_id)
     if not subtree:
@@ -99,7 +109,10 @@ async def build_preview_tree(db: AsyncIOMotorDatabase, owner_id: int, root_folde
             by_parent.setdefault(parent, []).append(f)
 
     root_doc = subtree[0]
-    root_node = await _build_preview_node(db, owner_id, root_doc, by_parent)
+    root_node = await _build_preview_node(db, owner_id, root_doc, by_parent, claim)
+    
+    if not root_node:
+        root_node = SharePreviewFolder(name=root_doc["name"], files=[], subfolders=[])
 
     total_files = sum(_count_files(root_node) for _ in [None])
     total_folders = len(subtree)
@@ -169,9 +182,52 @@ async def execute_claim(db: AsyncIOMotorDatabase, token: str, claimed_by_id: int
     existing_claim = await get_claim(db, token, claimed_by_id)
 
     if existing_claim and existing_claim["status"] == "completed":
-        return existing_claim  # idempotent — already fully claimed
+        subtree = await folder_crud.get_folder_subtree(db, owner_id, share["folder_id"])
+        all_files: list[dict] = []
+        for folder_doc in subtree:
+            all_files.extend(await file_crud.list_files_in_folder(db, str(folder_doc["_id"]), owner_id))
+            
+        copied_file_ids = set(existing_claim.get("copied_file_ids", []))
+        uncopied_files = [f for f in all_files if str(f["_id"]) not in copied_file_ids]
+        
+        if not uncopied_files:
+            return existing_claim  # idempotent — already fully claimed
+            
+        total_cost = len(uncopied_files) * settings.SAVE_FILE_COST
+        user = await user_crud.refresh_subscription_status(db, claimed_by_id)
+        is_unlimited = await user_crud.is_unlimited_active(user)
 
-    if existing_claim:
+        if not is_unlimited and user["credits"] < total_cost:
+            raise PermissionError(
+                f"You need {total_cost} credits to claim the new files, but you only have {user['credits']}."
+            )
+
+        charged_user = await user_crud.adjust_credits(db, claimed_by_id, -total_cost)
+        if charged_user is None:
+            raise PermissionError("Couldn't charge credits for the new files. Try again.")
+
+        actual_cost_charged = 0 if is_unlimited else total_cost
+        
+        folder_id_map = existing_claim.get("folder_id_map", {})
+        for folder_doc in subtree:
+            original_id = str(folder_doc["_id"])
+            if original_id not in folder_id_map:
+                original_parent = folder_doc.get("parent_id")
+                new_parent_id = folder_id_map.get(original_parent) if original_parent else None
+                new_folder = await folder_crud.create_folder(
+                    db, claimed_by_id, FolderCreate(name=folder_doc["name"], parent_id=new_parent_id, is_claimed=True)
+                )
+                folder_id_map[original_id] = str(new_folder["_id"])
+                
+        await update_claim(db, token, claimed_by_id, {
+            "status": "in_progress",
+            "folder_id_map": folder_id_map,
+            "total_files": existing_claim["total_files"] + len(uncopied_files),
+            "total_cost_charged": existing_claim["total_cost_charged"] + actual_cost_charged,
+            "pending_file_ids": existing_claim.get("pending_file_ids", []) + [str(f["_id"]) for f in uncopied_files]
+        })
+        claim = await get_claim(db, token, claimed_by_id)
+    elif existing_claim:
         # Resume: folders + charge already exist, just keep copying files.
         claim = existing_claim
     else:
@@ -209,7 +265,7 @@ async def execute_claim(db: AsyncIOMotorDatabase, token: str, claimed_by_id: int
             new_parent_id = folder_id_map.get(original_parent) if original_parent else None
 
             new_folder = await folder_crud.create_folder(
-                db, claimed_by_id, FolderCreate(name=folder_doc["name"], parent_id=new_parent_id)
+                db, claimed_by_id, FolderCreate(name=folder_doc["name"], parent_id=new_parent_id, is_claimed=True)
             )
             folder_id_map[original_id] = str(new_folder["_id"])
 
@@ -278,5 +334,10 @@ async def execute_claim(db: AsyncIOMotorDatabase, token: str, claimed_by_id: int
         "pending_file_ids": pending_file_ids,
         "status": status,
     })
+
+    if status == "completed":
+        import asyncio
+        from app.crud.sync_crud import schedule_sync_notifications
+        asyncio.create_task(schedule_sync_notifications(db, claimed_by_id, claim["root_folder_id"]))
 
     return await get_claim(db, token, claimed_by_id)

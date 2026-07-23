@@ -11,12 +11,14 @@ from pydantic import BaseModel, Field
 class FolderCreate(BaseModel):
     name: str
     parent_id: Optional[str] = None  # None = root-level folder
+    is_claimed: bool = False
 
 
 class FolderInDB(BaseModel):
     user_id: int  # telegram_id
     name: str
     parent_id: Optional[str] = None
+    is_claimed: bool = False
     created_at: datetime = Field(default_factory=datetime.utcnow)
 
 
@@ -27,6 +29,7 @@ class FolderOut(BaseModel):
     file_count: int = 0
     subfolder_count: int = 0
     is_shared: bool = False
+    is_claimed: bool = False
     created_at: datetime
 
 

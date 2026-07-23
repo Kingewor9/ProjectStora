@@ -18,6 +18,7 @@ def _to_folder_out(doc: dict, file_count: int, subfolder_count: int, is_shared: 
         file_count=file_count,
         subfolder_count=subfolder_count,
         is_shared=is_shared,
+        is_claimed=doc.get("is_claimed", False),
         created_at=doc["created_at"],
     )
 
@@ -52,6 +53,8 @@ async def create_new_folder(
         parent = await folder_crud.get_folder(db, payload.parent_id, tg_user["id"])
         if not parent:
             raise HTTPException(404, "Parent folder not found")
+        if parent.get("is_claimed"):
+            raise HTTPException(403, "Cannot add subfolders to a claimed folder")
 
     doc = await folder_crud.create_folder(db, tg_user["id"], payload)
     return _to_folder_out(doc, file_count=0, subfolder_count=0)

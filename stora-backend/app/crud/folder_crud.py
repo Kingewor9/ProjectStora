@@ -14,7 +14,12 @@ def _oid(id_str: str) -> ObjectId:
 
 
 async def create_folder(db: AsyncIOMotorDatabase, user_id: int, folder: FolderCreate) -> dict:
-    doc = FolderInDB(user_id=user_id, name=folder.name, parent_id=folder.parent_id).model_dump()
+    doc = FolderInDB(
+        user_id=user_id, 
+        name=folder.name, 
+        parent_id=folder.parent_id,
+        is_claimed=folder.is_claimed
+    ).model_dump()
     result = await db.folders.insert_one(doc)
     return await db.folders.find_one({"_id": result.inserted_id})
 
