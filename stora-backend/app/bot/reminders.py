@@ -65,7 +65,8 @@ async def send_sync_notification(db, notif_doc: dict) -> None:
         return
         
     owner = await db.users.find_one({"telegram_id": share["owner_id"]})
-    folder = await db.folders.find_one({"_id": share["folder_id"]})
+    from bson import ObjectId
+    folder = await db.folders.find_one({"_id": ObjectId(share["folder_id"])})
     
     if not owner or not folder:
         return
