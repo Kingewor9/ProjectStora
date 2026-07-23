@@ -73,11 +73,10 @@ async def send_sync_notification(db, notif_doc: dict) -> None:
     owner_name = owner.get("first_name") or owner.get("username") or "A user"
     folder_name = folder.get("name", "a folder")
 
-    from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
-    # Create inline button to trigger the mini app with startapp param
+    from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton, WebAppInfo
     sync_btn = InlineKeyboardButton(
         text="🔄 Sync New Files",
-        url=f"https://t.me/{settings.BOT_USERNAME}/{settings.MINI_APP_NAME}?startapp=share_{token}"
+        web_app=WebAppInfo(url=f"{settings.FRONTEND_URL}/#/shared/{token}")
     )
     keyboard = InlineKeyboardMarkup(inline_keyboard=[[sync_btn]])
 
