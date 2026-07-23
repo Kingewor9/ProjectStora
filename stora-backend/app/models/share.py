@@ -9,7 +9,7 @@ from datetime import datetime
 from typing import Literal, Optional
 from pydantic import BaseModel, Field
 
-ClaimStatus = Literal["in_progress", "completed"]
+ClaimStatus = Literal["in_progress", "completed", "delta"]
 
 
 class ShareCreate(BaseModel):
