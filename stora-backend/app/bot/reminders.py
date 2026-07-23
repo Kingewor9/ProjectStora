@@ -103,7 +103,8 @@ async def start_sync_scheduler(interval_seconds: int = 60) -> None:
                 await asyncio.sleep(interval_seconds)
                 continue
 
-            threshold = datetime.utcnow() - timedelta(minutes=5)
+            # Temporarily reduced to 15 seconds so you don't have to wait 5 minutes to verify it works!
+            threshold = datetime.utcnow() - timedelta(seconds=15)
             
             cursor = db.sync_notifications.find({
                 "status": "pending",
